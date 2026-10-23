@@ -576,9 +576,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Matrix fixture lists expected winner + expected reason codes per row, each with a one-line rationale
-- [ ] Test runs offline using bundled data only
-- [ ] Gate passes: full gate command
+- [x] Matrix fixture lists expected winner + expected reason codes per row, each with a one-line rationale
+- [x] Test runs offline using bundled data only
+- [x] Gate passes: full gate command
 
 **Tests**: integration
 **Gate**: full
