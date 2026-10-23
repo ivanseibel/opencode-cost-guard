@@ -100,10 +100,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] `cargo check --workspace` succeeds
-- [ ] `rust-toolchain.toml` pins a current stable toolchain; edition 2024 set in `crates/core/Cargo.toml`
-- [ ] `.gitignore` ignores `target/`
-- [ ] Gate passes: `cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace`
+- [x] `cargo check --workspace` succeeds
+- [x] `rust-toolchain.toml` pins a current stable toolchain; edition 2024 set in `crates/core/Cargo.toml`
+- [x] `.gitignore` ignores `target/`
+- [x] Gate passes: `cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace`
 
 **Tests**: none (workspace config layer, build gate only)
 **Gate**: build

@@ -1,0 +1,5 @@
+# Build output
+/target/
+
+# Library workspace; the app crate will decide lockfile policy.
+Cargo.lock

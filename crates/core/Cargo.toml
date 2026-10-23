@@ -1,0 +1,9 @@
+[package]
+name = "cost-guard-core"
+description = "Platform-independent core for OpenCode Cost Guard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
