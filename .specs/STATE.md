@@ -48,11 +48,11 @@
 
 ## Handoff
 
-- **Feature**: core-v01 (`.specs/features/core-v01/`)
-- **Phase / Task**: Design complete, Tasks pending approval
-- **Completed**: T- (none yet)
+- **Feature**: core-v01 — complete (Verifier PASS, 41/41 ACs, 6/6 mutations killed)
+- **Phase / Task**: all tasks T1–T22 complete
+- **Completed**: T1–T22 (commits a9752fc..61d5d02) + validation report
 - **In-progress**: none
-- **Next step**: approve tasks, then dispatch batch 1 of Execute
-- **Blockers**: none
-- **Uncommitted files**: design.md, tasks.md (pending approval commit)
+- **Next step**: plan the next feature (M2 Tauri app shell, then M3 release)
+- **Blockers**: none — local commits are ahead of origin; pushing needs an explicit go-ahead
+- **Uncommitted files**: none
 - **Branch**: main

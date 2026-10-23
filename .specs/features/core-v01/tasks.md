@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/core-v01/design.md`
-**Status**: Draft
+**Status**: Done
 
 ---
 

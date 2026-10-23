@@ -195,47 +195,47 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story       | Phase  | Status  |
 | -------------- | ----------- | ------ | ------- |
-| SCAF-01        | P1: Scaffold | Tasks | In Tasks |
-| SCAF-02        | P1: Scaffold | Tasks | In Tasks |
-| SCAF-03        | P1: Scaffold | Tasks | In Tasks |
-| SCHED-01       | P1: Schedule | Tasks | In Tasks |
-| SCHED-02       | P1: Schedule | Tasks | In Tasks |
-| SCHED-03       | P1: Schedule | Tasks | In Tasks |
-| SCHED-04       | P1: Schedule | Tasks | In Tasks |
-| SCHED-05       | P1: Schedule | Tasks | In Tasks |
-| SCHED-06       | P1: Schedule | Tasks | In Tasks |
-| DATA-01        | P1: Overlays | Tasks | In Tasks |
-| DATA-02        | P1: Overlays | Tasks | In Tasks |
-| DATA-03        | P1: Overlays | Tasks | In Tasks |
-| DATA-04        | P1: Overlays | Tasks | In Tasks |
-| DATA-05        | P1: Overlays | Tasks | In Tasks |
-| SYNC-01        | P1: Sync    | Tasks | In Tasks |
-| SYNC-02        | P1: Sync    | Tasks | In Tasks |
-| SYNC-03        | P1: Sync    | Tasks | In Tasks |
-| SYNC-04        | P1: Sync    | Tasks | In Tasks |
-| SYNC-05        | P1: Sync    | Tasks | In Tasks |
-| SYNC-06        | P1: Sync    | Tasks | In Tasks |
-| SYNC-07        | P1: Sync    | Tasks | In Tasks |
-| SYNC-08        | P1: Sync    | Tasks | In Tasks |
-| SYNC-09        | P1: Sync    | Tasks | In Tasks |
-| SYNC-10        | P1: Sync    | Tasks | In Tasks |
-| REC-01         | P1: Recommend | Tasks | In Tasks |
-| REC-02         | P1: Recommend | Tasks | In Tasks |
-| REC-03         | P1: Recommend | Tasks | In Tasks |
-| REC-04         | P1: Recommend | Tasks | In Tasks |
-| REC-05         | P1: Recommend | Tasks | In Tasks |
-| REC-06         | P1: Recommend | Tasks | In Tasks |
-| REC-07         | P1: Recommend | Tasks | In Tasks |
-| REC-08         | P1: Recommend | Tasks | In Tasks |
-| REC-09         | P1: Recommend | Tasks | In Tasks |
-| REC-10         | P1: Recommend | Tasks | In Tasks |
-| REC-11         | P1: Recommend | Tasks | In Tasks |
-| CFG-01         | P1: Config  | Tasks | In Tasks |
-| CFG-02         | P1: Config  | Tasks | In Tasks |
-| CFG-03         | P1: Config  | Tasks | In Tasks |
-| CFG-04         | P1: Config  | Tasks | In Tasks |
-| DEMO-01        | P2: Demo    | Tasks | In Tasks |
-| DEMO-02        | P2: Demo    | Tasks | In Tasks |
+| SCAF-01        | P1: Scaffold | Tasks | Verified |
+| SCAF-02        | P1: Scaffold | Tasks | Verified |
+| SCAF-03        | P1: Scaffold | Tasks | Verified |
+| SCHED-01       | P1: Schedule | Tasks | Verified |
+| SCHED-02       | P1: Schedule | Tasks | Verified |
+| SCHED-03       | P1: Schedule | Tasks | Verified |
+| SCHED-04       | P1: Schedule | Tasks | Verified |
+| SCHED-05       | P1: Schedule | Tasks | Verified |
+| SCHED-06       | P1: Schedule | Tasks | Verified |
+| DATA-01        | P1: Overlays | Tasks | Verified |
+| DATA-02        | P1: Overlays | Tasks | Verified |
+| DATA-03        | P1: Overlays | Tasks | Verified |
+| DATA-04        | P1: Overlays | Tasks | Verified |
+| DATA-05        | P1: Overlays | Tasks | Verified |
+| SYNC-01        | P1: Sync    | Tasks | Verified |
+| SYNC-02        | P1: Sync    | Tasks | Verified |
+| SYNC-03        | P1: Sync    | Tasks | Verified |
+| SYNC-04        | P1: Sync    | Tasks | Verified |
+| SYNC-05        | P1: Sync    | Tasks | Verified |
+| SYNC-06        | P1: Sync    | Tasks | Verified |
+| SYNC-07        | P1: Sync    | Tasks | Verified |
+| SYNC-08        | P1: Sync    | Tasks | Verified |
+| SYNC-09        | P1: Sync    | Tasks | Verified |
+| SYNC-10        | P1: Sync    | Tasks | Verified |
+| REC-01         | P1: Recommend | Tasks | Verified |
+| REC-02         | P1: Recommend | Tasks | Verified |
+| REC-03         | P1: Recommend | Tasks | Verified |
+| REC-04         | P1: Recommend | Tasks | Verified |
+| REC-05         | P1: Recommend | Tasks | Verified |
+| REC-06         | P1: Recommend | Tasks | Verified |
+| REC-07         | P1: Recommend | Tasks | Verified |
+| REC-08         | P1: Recommend | Tasks | Verified |
+| REC-09         | P1: Recommend | Tasks | Verified |
+| REC-10         | P1: Recommend | Tasks | Verified |
+| REC-11         | P1: Recommend | Tasks | Verified |
+| CFG-01         | P1: Config  | Tasks | Verified |
+| CFG-02         | P1: Config  | Tasks | Verified |
+| CFG-03         | P1: Config  | Tasks | Verified |
+| CFG-04         | P1: Config  | Tasks | Verified |
+| DEMO-01        | P2: Demo    | Tasks | Verified |
+| DEMO-02        | P2: Demo    | Tasks | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 
