@@ -201,10 +201,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Script exits 0 on the current tree and exits non-zero when fed a fixture list containing `tauri`
-- [ ] CI workflow gains a purity step using the script
-- [ ] `bash -n scripts/check-core-purity.sh` is clean
-- [ ] Gate passes: build gate command plus `bash scripts/check-core-purity.sh`
+- [x] Script exits 0 on the current tree and exits non-zero when fed a fixture list containing `tauri`
+- [x] CI workflow gains a purity step using the script
+- [x] `bash -n scripts/check-core-purity.sh` is clean
+- [x] Gate passes: build gate command plus `bash scripts/check-core-purity.sh`
 
 **Tests**: none (script layer, build gate only)
 **Gate**: build

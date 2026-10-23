@@ -33,3 +33,6 @@ jobs:
 
       - name: Test
         run: cargo test --workspace
+
+      - name: Core dependency purity
+        run: bash scripts/check-core-purity.sh
