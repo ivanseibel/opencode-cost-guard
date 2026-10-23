@@ -1,0 +1,307 @@
+# OpenCode Go Roster capability ratings.
+#
+# Flags and context lengths mirror models.dev metadata (the same feed the
+# catalog mirror serves). Tier and profile scores are curated judgments:
+#
+#   frontier  top-end reasoning/coding models
+#   strong    capable daily drivers, one step below the frontier
+#   standard  efficient or older-generation models
+#   light     small, free or narrowly scoped models
+#
+# Profile scores are 0-10 and only listed where the model could plausibly win
+# that profile; unlisted profiles fall back to the tier base in scoring.
+# Per-profile scores are human judgments from public model cards, benchmarks
+# and the model descriptions published in the mirror.
+
+schema = 1
+source = "https://models.dev/api.json + public model cards"
+last_verified = "2026-10-23"
+
+[[model]]
+id = "beam-free"
+tier = "light"
+vision = false
+tools = true
+reasoning = true
+context = 1048576
+notes = "Free 23B-active MoE reasoning model, limited time and regions. Small active footprint; not rated for any profile."
+
+[[model]]
+id = "claude-haiku-5-5"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.8, complex = 7.0, visual = 7.2, agentic = 6.8, refactor = 6.5 }
+notes = "Fast, low-cost Claude Haiku tier. Strong instruction following; weaker on long-horizon refactors."
+
+[[model]]
+id = "deepseek-v4-pro"
+tier = "frontier"
+vision = false
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 8.4, complex = 9.2, agentic = 9.4, refactor = 9.2 }
+notes = "Flagship DeepSeek coding model. Text only; no visual profile rating."
+
+[[model]]
+id = "deepseek-v4.1-flash"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 8.6, complex = 8.9, visual = 7.8, agentic = 9.2, refactor = 8.4 }
+notes = "Flagship-class agentic coding at Flash price. Cheap cache keeps multi-turn agent loops economical."
+
+[[model]]
+id = "gemini-4-argon-contributor"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.8, complex = 9.5, visual = 9.5, agentic = 9.4, refactor = 9.5 }
+notes = "Google flagship reasoning model. Contributor pricing means prompts may train models. Highest quality on complex and visual work, highest cost."
+
+[[model]]
+id = "glm-5.2"
+tier = "strong"
+vision = false
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.6, complex = 8.6, agentic = 8.7, refactor = 8.5 }
+notes = "Prior GLM flagship. Text only; superseded by GLM-5.3."
+
+[[model]]
+id = "glm-5.3"
+tier = "frontier"
+vision = false
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.9, complex = 9.0, agentic = 9.2, refactor = 9.1 }
+notes = "Flagship GLM for long-horizon coding agents. Text and tools only."
+
+[[model]]
+id = "glm-5.3-flash"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.9, complex = 7.4, visual = 8.0, agentic = 7.6, refactor = 7.0 }
+notes = "Native multimodal GLM at flash pricing. Efficient coding, not a frontier reasoner."
+
+[[model]]
+id = "gpt-5.6-luna"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1050000
+profiles = { simple = 7.3, complex = 7.0, visual = 7.2, agentic = 7.0, refactor = 6.8 }
+notes = "Cost-efficient GPT-5.6 tier for high-volume work."
+
+[[model]]
+id = "gpt-6-luna"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1050000
+profiles = { simple = 8.1, complex = 8.4, visual = 8.5, agentic = 8.4, refactor = 8.2 }
+notes = "GPT-6 generation efficiency tier. Cheap and multimodal, short of flagship reasoning."
+
+[[model]]
+id = "grok-4.7"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 500000
+profiles = { simple = 7.6, complex = 9.4, visual = 9.0, agentic = 9.3, refactor = 9.2 }
+notes = "xAI frontier model. Smaller 500K context and a high token price limit its reach."
+
+[[model]]
+id = "hy3"
+tier = "standard"
+vision = false
+tools = true
+reasoning = true
+context = 256000
+profiles = { simple = 7.0, complex = 7.2, agentic = 6.8, refactor = 6.6 }
+notes = "Tencent Hy reasoning model. 256K context caps large refactors."
+
+[[model]]
+id = "hy4-preview"
+tier = "strong"
+vision = false
+tools = true
+reasoning = true
+context = 1024000
+profiles = { simple = 7.5, complex = 8.8, agentic = 8.6, refactor = 8.8 }
+notes = "Preview of the next Hy generation. Long context, text only."
+
+[[model]]
+id = "kimi-k2.7-code"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 262144
+profiles = { simple = 7.4, complex = 8.2, visual = 7.0, agentic = 8.6, refactor = 7.8 }
+notes = "Coding-focused prior-generation Kimi. 256K context."
+
+[[model]]
+id = "kimi-k3"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 8.4, complex = 9.4, visual = 9.2, agentic = 9.4, refactor = 9.4 }
+notes = "Multimodal Kimi with 1M context and toggleable max-effort reasoning."
+
+[[model]]
+id = "kimi-k3.1-pro"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 8.6, complex = 9.6, visual = 9.4, agentic = 9.6, refactor = 9.6 }
+notes = "Top-end Kimi Pro: always-on reasoning, 1M context, multimodal."
+
+[[model]]
+id = "longcat-2.0"
+tier = "standard"
+vision = false
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.4, complex = 7.3, agentic = 7.0, refactor = 7.2 }
+notes = "Meituan LongCat reasoning model. Very cheap cache read; no vision."
+
+[[model]]
+id = "mimo-v2.5"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.0, complex = 7.0, visual = 8.5, agentic = 6.8, refactor = 6.6 }
+notes = "Omni model with strong image, video and audio input. Coding is secondary."
+
+[[model]]
+id = "mimo-v2.5-pro"
+tier = "strong"
+vision = false
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.2, complex = 8.2, agentic = 8.0, refactor = 7.8 }
+notes = "Pro tier of MiMo 2.5. Text only on Go."
+
+[[model]]
+id = "mimo-v2.6-flash"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.5, complex = 7.2, visual = 8.0, agentic = 7.4, refactor = 7.0 }
+notes = "Flash tier for multimodal coding agents."
+
+[[model]]
+id = "mimo-v2.6-pro"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.6, complex = 8.5, visual = 8.6, agentic = 8.7, refactor = 8.4 }
+notes = "Stronger MiMo Pro tier for multimodal reasoning and coding agents."
+
+[[model]]
+id = "minimax-m3"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.3, complex = 8.2, visual = 8.3, agentic = 8.2, refactor = 8.0 }
+notes = "Multimodal coding model; prior MiniMax generation."
+
+[[model]]
+id = "minimax-m3.1-flash"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 8.4, complex = 8.8, visual = 8.7, agentic = 9.0, refactor = 8.6 }
+notes = "Marketed as a frontier multimodal coding model at flash pricing. Rated strong to keep curation conservative."
+
+[[model]]
+id = "muse-spark-1.2-contributor"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.2, complex = 7.8, visual = 7.8, agentic = 7.4, refactor = 7.4 }
+notes = "Prior Muse Spark contributor generation. Prompts may train Meta models; limited regions."
+
+[[model]]
+id = "muse-spark-1.3-contributor"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1048576
+profiles = { simple = 7.8, complex = 8.6, visual = 8.4, agentic = 8.4, refactor = 8.2 }
+notes = "Multimodal Meta contributor tier. Prompts may train models; limited regions."
+
+[[model]]
+id = "qwen3.7-plus"
+tier = "strong"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.8, complex = 8.6, visual = 9.0, agentic = 8.4, refactor = 8.2 }
+notes = "Multimodal reasoning model. Token price steps up above 256K input tokens."
+
+[[model]]
+id = "qwen3.8-flash"
+tier = "standard"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 7.6, complex = 7.6, visual = 8.6, agentic = 7.6, refactor = 7.4 }
+notes = "Vision-language flash tier for documents and screenshots."
+
+[[model]]
+id = "qwen3.8-max"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 8.0, complex = 9.3, visual = 9.3, agentic = 9.2, refactor = 9.3 }
+notes = "2.4-trillion-parameter multimodal flagship. Expensive per token."
+
+[[model]]
+id = "step-5-preview"
+tier = "frontier"
+vision = true
+tools = true
+reasoning = true
+context = 1000000
+profiles = { simple = 8.0, complex = 9.0, visual = 8.8, agentic = 9.1, refactor = 8.9 }
+notes = "Preview of StepFun's next flagship coding base model; no long track record yet."

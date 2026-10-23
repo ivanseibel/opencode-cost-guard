@@ -305,10 +305,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Every snapshot model id has an entry with `tier`, `vision`, `tools`, `reasoning`, `context`
-- [ ] Profile scores (0–10) provided for the models expected to win any matrix row; others may inherit tier base
-- [ ] `notes` explains non-obvious ratings; `source` + `last_verified` present
-- [ ] Gate passes: build gate command
+- [x] Every snapshot model id has an entry with `tier`, `vision`, `tools`, `reasoning`, `context`
+- [x] Profile scores (0–10) provided for the models expected to win any matrix row; others may inherit tier base
+- [x] `notes` explains non-obvious ratings; `source` + `last_verified` present
+- [x] Gate passes: build gate command
 
 **Tests**: none (curated data, validated by T11)
 **Gate**: build
