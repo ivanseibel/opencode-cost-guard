@@ -431,8 +431,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: save rotates current→previous; exactly two files retained; interrupted/truncated file treated as absent; atomic temp+rename behavior
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: save rotates current→previous; exactly two files retained; interrupted/truncated file treated as absent; atomic temp+rename behavior
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
