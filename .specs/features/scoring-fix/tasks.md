@@ -92,10 +92,10 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Every entry has a non-empty `vendor` (deepseek, anthropic, google, openai, xai, zhipu, tencent, moonshot, meituan, xiaomi, minimax, meta, alibaba, stepfun, reflection)
-- [ ] `data_terms = true` only on the three contributor models above
-- [ ] File parses and bundled overlays load; bundled validation emits no warnings
-- [ ] Gate passes: build gate command
+- [x] Every entry has a non-empty `vendor` (deepseek, anthropic, google, openai, xai, zhipu, tencent, moonshot, meituan, xiaomi, minimax, meta, alibaba, stepfun, reflection)
+- [x] `data_terms = true` only on the three contributor models above
+- [x] File parses and bundled overlays load; bundled validation emits no warnings
+- [x] Gate passes: build gate command
 
 **Tests**: none (curated data, validated by overlay tests)
 **Gate**: build

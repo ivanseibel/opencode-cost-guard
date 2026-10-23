@@ -67,6 +67,7 @@ tier = "frontier"
 vision = true
 tools = true
 reasoning = true
+data_terms = true
 context = 1048576
 profiles = { simple = 7.8, complex = 9.5, visual = 9.5, agentic = 9.4, refactor = 9.5 }
 notes = "Google flagship reasoning model. Contributor pricing means prompts may train models. Highest quality on complex and visual work, highest cost."
@@ -276,6 +277,7 @@ tier = "standard"
 vision = true
 tools = true
 reasoning = true
+data_terms = true
 context = 1048576
 profiles = { simple = 7.2, complex = 7.8, visual = 7.8, agentic = 7.4, refactor = 7.4 }
 notes = "Prior Muse Spark contributor generation. Prompts may train Meta models; limited regions."
@@ -287,6 +289,7 @@ tier = "strong"
 vision = true
 tools = true
 reasoning = true
+data_terms = true
 context = 1048576
 profiles = { simple = 7.8, complex = 8.6, visual = 8.4, agentic = 8.4, refactor = 8.2 }
 notes = "Multimodal Meta contributor tier. Prompts may train models; limited regions."
