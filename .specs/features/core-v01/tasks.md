@@ -455,9 +455,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: request builder sets/omits `If-None-Match`; timeout value propagates; a stub implementation can be used through the trait
-- [ ] No test performs network I/O
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: request builder sets/omits `If-None-Match`; timeout value propagates; a stub implementation can be used through the trait
+- [x] No test performs network I/O
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
