@@ -626,9 +626,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] `cargo run -p cost-guard-core --example status` prints a complete report with no network access
-- [ ] Running from a directory without snapshots uses bundled data and says so
-- [ ] Gate passes: build gate command
+- [x] `cargo run -p cost-guard-core --example status` prints a complete report with no network access
+- [x] Running from a directory without snapshots uses bundled data and says so
+- [x] Gate passes: build gate command
 
 **Tests**: none (thin wrapper; report logic covered in T21)
 **Gate**: build
