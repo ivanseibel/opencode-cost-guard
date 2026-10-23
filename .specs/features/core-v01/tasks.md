@@ -382,9 +382,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests use a synthetic calendar fixture (not the seed data) and cover: 8 boundary instants, weekend, holiday weekday, makeup weekend, next transition from off-peak/inside window/after last window, leap day, determinism, coverage gap
-- [ ] No clock reads inside the function
-- [ ] Gate passes: quick gate command
+- [x] Unit tests use a synthetic calendar fixture (not the seed data) and cover: 8 boundary instants, weekend, holiday weekday, makeup weekend, next transition from off-peak/inside window/after last window, leap day, determinism, coverage gap
+- [x] No clock reads inside the function
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
