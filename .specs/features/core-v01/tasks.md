@@ -126,8 +126,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Both license files exist with standard texts
-- [ ] Gate passes: build gate command from the Gate Check Commands table
+- [x] Both license files exist with standard texts
+- [x] Gate passes: build gate command from the Gate Check Commands table
 
 **Tests**: none (legal text, build gate only)
 **Gate**: build
