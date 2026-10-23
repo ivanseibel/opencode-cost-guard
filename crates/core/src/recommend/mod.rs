@@ -175,12 +175,14 @@ impl<'a> Engine<'a> {
             .providers
             .first()
             .map_or(1.0, |provider| provider.multiplier);
+        let factor = if window.peak { multiplier } else { 1.0 };
         let inputs: Vec<CandidateInput<'_>> = eligible
             .iter()
             .map(|(model, capability)| CandidateInput {
                 model_id: &model.id,
                 name: &model.name,
                 price: &model.price,
+                multiplier: factor,
                 cache_read: model.cache_read,
                 context: model.context,
                 capability,
@@ -188,7 +190,7 @@ impl<'a> Engine<'a> {
             })
             .collect();
 
-        let scored = score_candidates(&inputs, profile, window, multiplier);
+        let scored = score_candidates(&inputs, profile);
         self.assemble(scored, profile, window)
     }
 
@@ -203,7 +205,7 @@ impl<'a> Engine<'a> {
             return Recommendation::no_candidate(FailingFilter::Unrated);
         };
 
-        let reasons = reason_codes(first, window, profile)
+        let reasons = reason_codes(first, window.peak, profile)
             .into_iter()
             .map(|code| Reason {
                 code,
@@ -270,6 +272,7 @@ fn reason_text(code: ReasonCode, profile: TaskProfile) -> String {
         ReasonCode::ContextFit => "context window meets the 200K target".to_string(),
         ReasonCode::ToolsRequired => "tool-call support is required for this profile".to_string(),
         ReasonCode::VisionRequired => "image input is required for this profile".to_string(),
+        ReasonCode::DataTerms => "prompts may be used to train the provider's models".to_string(),
     }
 }
 

@@ -144,12 +144,12 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Effective price uses the candidate's own multiplier
-- [ ] Zero-cost candidate scores 1.0; paid candidates keep distinct scores in (0,1)
-- [ ] Equal costs (or single candidate, or degenerate log range) score 1.0 without division by zero
-- [ ] `DataTerms` code exists in the closed reason set
-- [ ] Unit tests per AC
-- [ ] Gate passes: quick gate command
+- [x] Effective price uses the candidate's own multiplier
+- [x] Zero-cost candidate scores 1.0; paid candidates keep distinct scores in (0,1)
+- [x] Equal costs (or single candidate, or degenerate log range) score 1.0 without division by zero
+- [x] `DataTerms` code exists in the closed reason set
+- [x] Unit tests per AC
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick

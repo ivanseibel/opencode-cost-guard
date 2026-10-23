@@ -1,18 +1,17 @@
 //! REC-11 acceptance matrix: 5 Task Profiles x peak/off-peak on bundled data.
 //!
-//! Every expectation below was derived by hand from the scoring formula in
-//! `.specs/features/core-v01/design.md` and the curated Overlays, not from
-//! engine output. The derivation, in short:
+//! Every expectation below was derived by hand from the scoring formula and
+//! the curated Overlays, not from engine output. The derivation, in short:
 //!
-//! - `cost_index = 0.35*input + 0.65*output`; the peak multiplier applies to
-//!   every candidate, so normalized `min/cost` ratios (and therefore ranking)
-//!   are unchanged between peak and off-peak.
-//! - Normalization runs over the candidates that survive the hard filters. A
-//!   zero-cost candidate scores `cost_score = 1.0` and sets the floor; while it
-//!   is eligible every positive-cost candidate scores `0.0`, so capability and
-//!   allowance decide. `beam-free` is that candidate for the unfiltered
-//!   profiles; Visual/UI filters it out (no vision), leaving Muse Spark 1.3 as
-//!   the cheapest eligible model and the only one with `cost_score = 1.0`.
+//! - `cost_index = 0.35*input + 0.65*output`. This task's engine still applies
+//!   the first provider's multiplier to every candidate at peak, so all
+//!   effective costs share one factor and log-normalized cost scores are
+//!   unchanged between peak and off-peak.
+//! - `cost_score = 1 - (ln(1+c) - ln(1+c_min)) / (ln(1+c_max) - ln(1+c_min))`
+//!   over the candidates that survive the hard filters. `beam-free` sets
+//!   `c_min = 0` and scores 1.0 for the unfiltered profiles; paid candidates
+//!   stay differentiated. Visual/UI filters it out (no vision), leaving Muse
+//!   Spark 1.3 as the cheapest eligible model.
 //! - `score = 0.55*capability + 0.30*cost + 0.10*allowance + 0.05*context`.
 //!   Context saturates at 200K, so every winner earns the full 0.05.
 //! - Reason codes follow the T18 policy: capability >= 0.85 is `StrongFit`,
@@ -21,12 +20,11 @@
 //!   and a full context score is `ContextFit`. Visual/UI and Agentic/Tools/MCP
 //!   add `VisionRequired` and `ToolsRequired` respectively.
 //!
-//! Resulting winners, all stable across peak and off-peak:
-//! simple-coding -> DeepSeek V4.1 Flash (8.6 capability + max 80 USD allowance);
-//! complex-coding and large-refactor -> Gemini 4 Argon Contributor (9.5
-//! capability); visual-ui -> Muse Spark 1.3 Contributor (cheapest vision model,
-//! 8.4 capability, 60 USD allowance); agentic-tools -> DeepSeek V4.1 Flash
-//! (9.2 capability + max allowance).
+//! Resulting winners (the global peak multiplier preserves the ranking):
+//! simple-coding, complex-coding, agentic-tools and large-refactor ->
+//! DeepSeek V4.1 Flash (top capability within its profile plus the max 80 USD
+//! allowance); visual-ui -> Muse Spark 1.3 Contributor (cheapest vision model,
+//! 8.4 capability, 60 USD allowance).
 
 use chrono::{TimeZone, Utc};
 use cost_guard_core::catalog::{CatalogSnapshot, parse_snapshot};
@@ -44,15 +42,15 @@ struct Row {
     rationale: &'static str,
 }
 
-const OFF_PEAK_WINDOW: [ReasonCode; 4] = [
+const REFACTOR_OFF_PEAK: [ReasonCode; 4] = [
     ReasonCode::OffPeakWindow,
-    ReasonCode::StrongFit,
+    ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
 ];
-const PEAK_WINDOW: [ReasonCode; 4] = [
+const REFACTOR_PEAK: [ReasonCode; 4] = [
     ReasonCode::PeakWindow,
-    ReasonCode::StrongFit,
+    ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
 ];
@@ -121,16 +119,16 @@ const ROWS: &[Row] = &[
     Row {
         profile: TaskProfile::ComplexCoding,
         peak: false,
-        winner: "gemini-4-argon-contributor",
-        codes: &OFF_PEAK_WINDOW,
-        rationale: "off-peak: 9.5 complex capability is the top rating; 60/80 allowance and a 1M context add the remaining components",
+        winner: "deepseek-v4.1-flash",
+        codes: &SIMPLE_OFF_PEAK,
+        rationale: "off-peak: 8.9 complex capability plus a 0.866 log cost score and the 80 USD max allowance beat every paid peer; free beam-free sets c_min = 0",
     },
     Row {
         profile: TaskProfile::ComplexCoding,
         peak: true,
-        winner: "gemini-4-argon-contributor",
-        codes: &PEAK_WINDOW,
-        rationale: "peak: complex-coding ranking is unchanged because cost normalization cancels the uniform multiplier",
+        winner: "deepseek-v4.1-flash",
+        codes: &SIMPLE_PEAK,
+        rationale: "peak: the global 2x scales every candidate, so log-normalized cost scores and the winner are unchanged and only the window code differs",
     },
     Row {
         profile: TaskProfile::VisualUi,
@@ -163,16 +161,16 @@ const ROWS: &[Row] = &[
     Row {
         profile: TaskProfile::LargeRefactor,
         peak: false,
-        winner: "gemini-4-argon-contributor",
-        codes: &OFF_PEAK_WINDOW,
-        rationale: "off-peak: 9.5 refactor capability is the top rating; 60/80 allowance and full context complete the score",
+        winner: "deepseek-v4.1-flash",
+        codes: &REFACTOR_OFF_PEAK,
+        rationale: "off-peak: 8.4 refactor capability is below StrongFit but the 0.866 log cost score, 80 USD max allowance and full context carry the score",
     },
     Row {
         profile: TaskProfile::LargeRefactor,
         peak: true,
-        winner: "gemini-4-argon-contributor",
-        codes: &PEAK_WINDOW,
-        rationale: "peak: the uniform multiplier leaves the refactor ranking unchanged; only the window code differs",
+        winner: "deepseek-v4.1-flash",
+        codes: &REFACTOR_PEAK,
+        rationale: "peak: the global 2x leaves cost scores unchanged in ratio, so the refactor winner holds and only the window code differs",
     },
 ];
 
