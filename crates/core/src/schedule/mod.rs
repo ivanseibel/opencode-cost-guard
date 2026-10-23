@@ -10,7 +10,7 @@ use std::collections::BTreeSet;
 
 use chrono::{DateTime, Datelike, Days, NaiveDate, TimeZone, Timelike, Utc, Weekday};
 
-use crate::overlay::{Overlays, PricingWindow};
+use crate::overlay::{Overlays, PricingWindow, ProviderWindows};
 
 /// Days scanned when looking for the next state transition.
 const NEXT_TRANSITION_HORIZON_DAYS: u64 = 400;
@@ -18,6 +18,8 @@ const NEXT_TRANSITION_HORIZON_DAYS: u64 = 400;
 /// Pricing state for one instant.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WindowState {
+    /// Provider (vendor) this state describes.
+    pub provider: String,
     /// Peak pricing applies at the requested instant.
     pub peak: bool,
     /// First instant after the requested one where the state differs, in UTC.
@@ -36,22 +38,52 @@ struct ProviderRule<'a> {
     windows: &'a [PricingWindow],
 }
 
-/// Return the pricing state for `now` (SCHED-01..06).
-pub fn state_at(now: DateTime<Utc>, overlays: &Overlays) -> WindowState {
-    let rules: Vec<ProviderRule<'_>> = overlays
+/// Return the pricing state for `provider` at `now` (SCHED-01..06).
+///
+/// `None` means the Overlays publish no Pricing Window for that provider, so
+/// its models pay flat prices.
+pub fn state_for(provider: &str, now: DateTime<Utc>, overlays: &Overlays) -> Option<WindowState> {
+    let entry = overlays
         .windows
         .providers
         .iter()
-        .map(|provider| ProviderRule {
-            days: day_mask(&provider.days),
-            windows: &provider.windows,
-        })
-        .collect();
+        .find(|entry| entry.provider == provider)?;
+    Some(state_for_rule(provider, entry, now, overlays))
+}
+
+/// Return the pricing state of the first curated provider at `now`.
+///
+/// Convenience wrapper for the tray, which displays one window. The bundled
+/// Overlays list DeepSeek first. With no providers, the state is flat and
+/// names no provider.
+pub fn state_at(now: DateTime<Utc>, overlays: &Overlays) -> WindowState {
+    let Some(entry) = overlays.windows.providers.first() else {
+        return WindowState {
+            provider: String::new(),
+            peak: false,
+            next_transition: DateTime::<Utc>::MAX_UTC,
+            coverage_gap: holidays_for(overlays, now.year()).1,
+        };
+    };
+    state_for(&entry.provider, now, overlays).expect("first provider has a window rule")
+}
+
+fn state_for_rule(
+    provider: &str,
+    entry: &ProviderWindows,
+    now: DateTime<Utc>,
+    overlays: &Overlays,
+) -> WindowState {
+    let rules = [ProviderRule {
+        days: day_mask(&entry.days),
+        windows: &entry.windows,
+    }];
 
     let (holidays, coverage_gap) = holidays_for(overlays, now.year());
     let peak = is_peak(now, &rules, &holidays);
 
     WindowState {
+        provider: provider.to_string(),
         peak,
         next_transition: next_transition(now, peak, &rules, &holidays),
         coverage_gap,
@@ -253,6 +285,71 @@ mod tests {
                 models: Vec::new(),
             },
         }
+    }
+
+    #[test]
+    fn state_names_the_provider_it_describes() {
+        let overlays = synthetic_overlays();
+        let state =
+            state_for("deepseek", instant(2030, 3, 12, 2, 0, 0), &overlays).expect("window rule");
+
+        assert_eq!(state.provider, "deepseek");
+        assert!(state.peak);
+        assert_eq!(state.next_transition, instant(2030, 3, 12, 4, 0, 0));
+        assert_eq!(
+            state_for("anthropic", instant(2030, 3, 12, 2, 0, 0), &overlays),
+            None
+        );
+    }
+
+    #[test]
+    fn each_provider_has_its_own_peak_state() {
+        let mut overlays = synthetic_overlays();
+        overlays.windows.providers.push(ProviderWindows {
+            provider: "anthropic".to_string(),
+            multiplier: 3.0,
+            days: ["Mon", "Tue", "Wed", "Thu", "Fri"]
+                .iter()
+                .map(|day| day.to_string())
+                .collect(),
+            windows: vec![PricingWindow {
+                start_minutes: 240,
+                end_minutes: 300,
+            }],
+            source: "https://example.com/synthetic".to_string(),
+            last_verified: "2030-01-01".to_string(),
+        });
+
+        let inside_deepseek = instant(2030, 3, 12, 2, 0, 0);
+        let primary = state_at(inside_deepseek, &overlays);
+        assert_eq!(primary.provider, "deepseek");
+        assert!(primary.peak);
+
+        let anthropic = state_for("anthropic", inside_deepseek, &overlays).expect("window rule");
+        assert!(!anthropic.peak);
+        assert_eq!(anthropic.next_transition, instant(2030, 3, 12, 4, 0, 0));
+
+        let inside_anthropic = instant(2030, 3, 12, 4, 30, 0);
+        assert!(!state_at(inside_anthropic, &overlays).peak);
+        assert!(
+            state_for("anthropic", inside_anthropic, &overlays)
+                .expect("window rule")
+                .peak
+        );
+        assert_eq!(state_at(inside_anthropic, &overlays).provider, "deepseek");
+    }
+
+    #[test]
+    fn no_curated_provider_means_a_flat_state() {
+        let mut overlays = synthetic_overlays();
+        overlays.windows.providers.clear();
+
+        let state = state_at(instant(2030, 3, 12, 2, 0, 0), &overlays);
+
+        assert!(state.provider.is_empty());
+        assert!(!state.peak);
+        assert_eq!(state.next_transition, DateTime::<Utc>::MAX_UTC);
+        assert_eq!(state.coverage_gap, None);
     }
 
     #[test]

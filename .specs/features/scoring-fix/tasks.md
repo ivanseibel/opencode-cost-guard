@@ -118,10 +118,10 @@ T5 → T6
 
 **Done when**:
 
-- [ ] `WindowState` names the provider it describes
-- [ ] `state_for` returns None for vendors without a window
-- [ ] Existing schedule tests updated; new tests cover provider naming and unknown vendor
-- [ ] Gate passes: quick gate command
+- [x] `WindowState` names the provider it describes
+- [x] `state_for` returns None for vendors without a window
+- [x] Existing schedule tests updated; new tests cover provider naming and unknown vendor
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick

@@ -284,6 +284,7 @@ mod tests {
 
     fn window(peak: bool) -> WindowState {
         WindowState {
+            provider: "deepseek".to_string(),
             peak,
             next_transition: chrono::DateTime::<chrono::Utc>::MAX_UTC,
             coverage_gap: None,
