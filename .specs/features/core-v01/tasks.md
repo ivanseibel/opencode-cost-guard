@@ -552,8 +552,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: vision filter, tools filter, ignored models, unrated excluded, NoRecommendation names failing filter, alternatives capped at 3, reasons non-empty with codes from the closed set, determinism across runs
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: vision filter, tools filter, ignored models, unrated excluded, NoRecommendation names failing filter, alternatives capped at 3, reasons non-empty with codes from the closed set, determinism across runs
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
