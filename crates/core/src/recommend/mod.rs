@@ -9,10 +9,12 @@
 
 pub mod score;
 
+use chrono::{DateTime, Utc};
+
 use crate::catalog::{CatalogSnapshot, ModelEntry};
 use crate::config::{Config, TaskProfile};
 use crate::overlay::{ModelCapability, Overlays};
-use crate::schedule::WindowState;
+use crate::schedule::state_for;
 
 pub use score::ReasonCode;
 
@@ -122,8 +124,11 @@ impl<'a> Engine<'a> {
         }
     }
 
-    /// Recommend for `profile` under `window` (REC-01..10).
-    pub fn recommend(&self, profile: TaskProfile, window: &WindowState) -> Recommendation {
+    /// Recommend for `profile` at `now` (REC-01..10).
+    ///
+    /// Each candidate's multiplier comes from its own vendor's Pricing Window,
+    /// so a DeepSeek peak does not reprice flat vendors (PEAK-01).
+    pub fn recommend(&self, profile: TaskProfile, now: DateTime<Utc>) -> Recommendation {
         if self.snapshot.models.is_empty() {
             return Recommendation::no_candidate(FailingFilter::EmptyRoster);
         }
@@ -169,20 +174,13 @@ impl<'a> Engine<'a> {
             });
         }
 
-        let multiplier = self
-            .overlays
-            .windows
-            .providers
-            .first()
-            .map_or(1.0, |provider| provider.multiplier);
-        let factor = if window.peak { multiplier } else { 1.0 };
         let inputs: Vec<CandidateInput<'_>> = eligible
             .iter()
             .map(|(model, capability)| CandidateInput {
                 model_id: &model.id,
                 name: &model.name,
                 price: &model.price,
-                multiplier: factor,
+                multiplier: self.vendor_multiplier(&capability.vendor, now),
                 cache_read: model.cache_read,
                 context: model.context,
                 capability,
@@ -191,7 +189,24 @@ impl<'a> Engine<'a> {
             .collect();
 
         let scored = score_candidates(&inputs, profile);
-        self.assemble(scored, profile, window)
+        self.assemble(scored, profile, now)
+    }
+
+    /// Active peak multiplier for one vendor, or `1.0` when it has no window
+    /// or is off-peak.
+    fn vendor_multiplier(&self, vendor: &str, now: DateTime<Utc>) -> f64 {
+        let Some(state) = state_for(vendor, now, self.overlays) else {
+            return 1.0;
+        };
+        if !state.peak {
+            return 1.0;
+        }
+        self.overlays
+            .windows
+            .providers
+            .iter()
+            .find(|provider| provider.provider == vendor)
+            .map_or(1.0, |provider| provider.multiplier)
     }
 
     /// Turn ordered scores into the public recommendation shape.
@@ -199,19 +214,26 @@ impl<'a> Engine<'a> {
         &self,
         scored: Vec<ScoredCandidate>,
         profile: TaskProfile,
-        window: &WindowState,
+        now: DateTime<Utc>,
     ) -> Recommendation {
         let Some((first, rest)) = scored.split_first() else {
             return Recommendation::no_candidate(FailingFilter::Unrated);
         };
 
-        let reasons = reason_codes(first, window.peak, profile)
+        let peak = state_for(&first.vendor, now, self.overlays).is_some_and(|state| state.peak);
+        let mut reasons: Vec<Reason> = reason_codes(first, peak, profile)
             .into_iter()
             .map(|code| Reason {
                 code,
                 text: reason_text(code, profile),
             })
             .collect();
+        if first.data_terms {
+            reasons.push(Reason {
+                code: ReasonCode::DataTerms,
+                text: reason_text(ReasonCode::DataTerms, profile),
+            });
+        }
 
         Recommendation {
             pick: Some(Pick::from(first)),
@@ -283,18 +305,16 @@ mod tests {
     use crate::config::Config;
     use crate::overlay::{
         CapabilitiesOverlay, HolidayYear, HolidaysOverlay, LimitsOverlay, ModelLimit,
-        ProviderWindows, Tier, WindowsOverlay,
+        PricingWindow, ProviderWindows, Tier, WindowsOverlay,
     };
-    use crate::schedule::WindowState;
     use std::collections::BTreeMap;
+    fn instant(peak: bool) -> DateTime<Utc> {
+        use chrono::TimeZone;
 
-    fn window(peak: bool) -> WindowState {
-        WindowState {
-            provider: "deepseek".to_string(),
-            peak,
-            next_transition: chrono::DateTime::<chrono::Utc>::MAX_UTC,
-            coverage_gap: None,
-        }
+        let (hour, minute) = if peak { (2, 0) } else { (0, 30) };
+        Utc.with_ymd_and_hms(2026, 10, 26, hour, minute, 0)
+            .single()
+            .expect("valid instant")
     }
 
     fn model(id: &str, vision: bool, tools: bool) -> ModelEntry {
@@ -368,7 +388,10 @@ mod tests {
                         .iter()
                         .map(|day| day.to_string())
                         .collect(),
-                    windows: Vec::new(),
+                    windows: vec![PricingWindow {
+                        start_minutes: 60,
+                        end_minutes: 240,
+                    }],
                     source: metadata().0,
                     last_verified: metadata().1,
                 }],
@@ -415,6 +438,25 @@ mod tests {
         Config::default()
     }
 
+    fn priced_model(id: &str, input: f64, output: f64) -> ModelEntry {
+        ModelEntry {
+            price: Price { input, output },
+            ..model(id, true, true)
+        }
+    }
+
+    fn single_model_recommendation(data_terms: bool) -> Recommendation {
+        let models = vec![model("a", true, true)];
+        let mut capability = capability("a", Tier::Strong, true, true, "simple", 9.0);
+        capability.data_terms = data_terms;
+        let snapshot = snapshot(models);
+        let overlays = overlays(vec![capability]);
+        let config = config();
+        let engine = Engine::new(&snapshot, &overlays, &config);
+
+        engine.recommend(TaskProfile::SimpleCoding, instant(false))
+    }
+
     #[test]
     fn returns_a_pick_reasons_and_at_most_three_alternatives() {
         let models = vec![
@@ -436,7 +478,7 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::SimpleCoding, &window(false));
+        let recommendation = engine.recommend(TaskProfile::SimpleCoding, instant(false));
 
         let pick = recommendation.pick.expect("a pick");
         assert_eq!(pick.model_id, "a");
@@ -465,7 +507,7 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::VisualUi, &window(false));
+        let recommendation = engine.recommend(TaskProfile::VisualUi, instant(false));
 
         let pick = recommendation.pick.expect("a pick");
         assert_eq!(pick.model_id, "vision");
@@ -489,7 +531,7 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::AgenticTools, &window(false));
+        let recommendation = engine.recommend(TaskProfile::AgenticTools, instant(false));
 
         let pick = recommendation.pick.expect("a pick");
         assert_eq!(pick.model_id, "tools");
@@ -521,7 +563,7 @@ mod tests {
         };
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::SimpleCoding, &window(false));
+        let recommendation = engine.recommend(TaskProfile::SimpleCoding, instant(false));
 
         assert_eq!(recommendation.pick.expect("a pick").model_id, "b");
         assert_eq!(
@@ -556,7 +598,7 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::SimpleCoding, &window(false));
+        let recommendation = engine.recommend(TaskProfile::SimpleCoding, instant(false));
 
         assert_eq!(recommendation.pick.expect("a pick").model_id, "rated");
         assert_eq!(
@@ -584,7 +626,7 @@ mod tests {
         let engine = Engine::new(&empty, &overlays_empty, &config);
         assert_eq!(
             engine
-                .recommend(TaskProfile::SimpleCoding, &window(false))
+                .recommend(TaskProfile::SimpleCoding, instant(false))
                 .no_candidate
                 .expect("no candidate")
                 .filter,
@@ -607,7 +649,7 @@ mod tests {
         let engine = Engine::new(&ignored_snapshot, &ignored_overlays, &ignored_config);
         assert_eq!(
             engine
-                .recommend(TaskProfile::SimpleCoding, &window(false))
+                .recommend(TaskProfile::SimpleCoding, instant(false))
                 .no_candidate
                 .expect("no candidate")
                 .filter,
@@ -619,7 +661,7 @@ mod tests {
         let engine = Engine::new(&unrated_snapshot, &unrated_overlays, &config);
         assert_eq!(
             engine
-                .recommend(TaskProfile::SimpleCoding, &window(false))
+                .recommend(TaskProfile::SimpleCoding, instant(false))
                 .no_candidate
                 .expect("no candidate")
                 .filter,
@@ -636,7 +678,7 @@ mod tests {
             8.0,
         )]);
         let engine = Engine::new(&text_only, &text_only_overlays, &config);
-        let visual = engine.recommend(TaskProfile::VisualUi, &window(false));
+        let visual = engine.recommend(TaskProfile::VisualUi, instant(false));
         let no_visual = visual.no_candidate.expect("no candidate");
         assert_eq!(no_visual.filter, FailingFilter::Vision);
         assert!(no_visual.message.contains("image input"), "{no_visual:?}");
@@ -653,7 +695,7 @@ mod tests {
             8.0,
         )]);
         let engine = Engine::new(&no_tools, &no_tools_overlays, &config);
-        let agentic = engine.recommend(TaskProfile::AgenticTools, &window(false));
+        let agentic = engine.recommend(TaskProfile::AgenticTools, instant(false));
         let no_agentic = agentic.no_candidate.expect("no candidate");
         assert_eq!(no_agentic.filter, FailingFilter::Tools);
         assert!(no_agentic.message.contains("tool calls"), "{no_agentic:?}");
@@ -668,7 +710,7 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let recommendation = engine.recommend(TaskProfile::SimpleCoding, &window(true));
+        let recommendation = engine.recommend(TaskProfile::SimpleCoding, instant(true));
 
         assert_eq!(
             recommendation
@@ -692,6 +734,81 @@ mod tests {
     }
 
     #[test]
+    fn non_deepseek_models_keep_flat_prices_during_deepseek_peak() {
+        let models = vec![
+            priced_model("deepseek-model", 1.0, 1.0),
+            priced_model("vendor-model", 1.0, 1.0),
+        ];
+        let mut other_vendor = capability("vendor-model", Tier::Strong, true, true, "simple", 8.0);
+        other_vendor.vendor = "anthropic".to_string();
+        let capabilities = vec![
+            capability("deepseek-model", Tier::Strong, true, true, "simple", 8.0),
+            other_vendor,
+        ];
+        let snapshot = snapshot(models);
+        let overlays = overlays(capabilities);
+        let config = config();
+        let engine = Engine::new(&snapshot, &overlays, &config);
+
+        let off_peak = engine.recommend(TaskProfile::SimpleCoding, instant(false));
+        let peak = engine.recommend(TaskProfile::SimpleCoding, instant(true));
+
+        let off_pick = off_peak.pick.as_ref().expect("off-peak pick");
+        let peak_pick = peak.pick.as_ref().expect("peak pick");
+        assert_eq!(off_pick.model_id, "deepseek-model");
+        assert_eq!(peak_pick.model_id, "vendor-model");
+        assert!((peak_pick.cost_index - 1.0).abs() < 1e-12);
+
+        let flat = off_peak
+            .alternatives
+            .iter()
+            .find(|pick| pick.model_id == "vendor-model")
+            .expect("flat vendor alternative");
+        let doubled = peak
+            .alternatives
+            .iter()
+            .find(|pick| pick.model_id == "deepseek-model")
+            .expect("deepseek alternative");
+        assert!((flat.cost_index - 1.0).abs() < 1e-12);
+        assert!((doubled.cost_index - 2.0).abs() < 1e-12);
+
+        assert!(
+            peak.reasons
+                .iter()
+                .any(|reason| reason.code == ReasonCode::OffPeakWindow)
+        );
+        assert!(
+            peak.reasons
+                .iter()
+                .all(|reason| reason.code != ReasonCode::PeakWindow)
+        );
+    }
+
+    #[test]
+    fn data_terms_reason_appears_only_when_the_pick_has_data_terms() {
+        let flagged = single_model_recommendation(true);
+        let reason = flagged
+            .reasons
+            .iter()
+            .find(|reason| reason.code == ReasonCode::DataTerms)
+            .expect("DataTerms reason");
+        assert!(!reason.text.is_empty());
+        assert_ne!(reason.text, reason.code.as_str());
+        assert_eq!(
+            flagged.reasons.last().map(|reason| reason.code),
+            Some(ReasonCode::DataTerms)
+        );
+
+        let clean = single_model_recommendation(false);
+        assert!(
+            clean
+                .reasons
+                .iter()
+                .all(|reason| reason.code != ReasonCode::DataTerms)
+        );
+    }
+
+    #[test]
     fn identical_inputs_produce_identical_recommendations() {
         let models = vec![
             model("b", true, true),
@@ -708,8 +825,8 @@ mod tests {
         let config = config();
         let engine = Engine::new(&snapshot, &overlays, &config);
 
-        let first = engine.recommend(TaskProfile::SimpleCoding, &window(false));
-        let second = engine.recommend(TaskProfile::SimpleCoding, &window(false));
+        let first = engine.recommend(TaskProfile::SimpleCoding, instant(false));
+        let second = engine.recommend(TaskProfile::SimpleCoding, instant(false));
 
         assert_eq!(first, second);
         assert_eq!(first.pick.expect("a pick").model_id, "a");

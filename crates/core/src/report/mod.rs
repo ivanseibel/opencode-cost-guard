@@ -50,7 +50,7 @@ pub fn build_report(
 
     let recommendations = TaskProfile::ALL
         .into_iter()
-        .map(|profile| (profile, engine.recommend(profile, &state)))
+        .map(|profile| (profile, engine.recommend(profile, now)))
         .collect();
     let warnings = overlays
         .validate(&snapshot.models, now.year())

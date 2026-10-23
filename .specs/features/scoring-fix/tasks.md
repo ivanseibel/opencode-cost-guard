@@ -172,11 +172,11 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Engine no longer applies a single global multiplier
-- [ ] Non-DeepSeek models keep flat prices during DeepSeek peak
-- [ ] `DataTerms` reason text rendered when the pick has data terms and absent otherwise
-- [ ] Unit tests cover both behaviors
-- [ ] Gate passes: quick gate command
+- [x] Engine no longer applies a single global multiplier
+- [x] Non-DeepSeek models keep flat prices during DeepSeek peak
+- [x] `DataTerms` reason text rendered when the pick has data terms and absent otherwise
+- [x] Unit tests cover both behaviors
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick

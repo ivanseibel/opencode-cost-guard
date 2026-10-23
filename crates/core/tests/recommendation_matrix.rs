@@ -3,10 +3,10 @@
 //! Every expectation below was derived by hand from the scoring formula and
 //! the curated Overlays, not from engine output. The derivation, in short:
 //!
-//! - `cost_index = 0.35*input + 0.65*output`. This task's engine still applies
-//!   the first provider's multiplier to every candidate at peak, so all
-//!   effective costs share one factor and log-normalized cost scores are
-//!   unchanged between peak and off-peak.
+//! - `cost_index = 0.35*input + 0.65*output`. Effective costs multiply by the
+//!   candidate vendor's active peak multiplier and stay flat for vendors with
+//!   no Pricing Window. Only DeepSeek doubles at peak; every other vendor holds
+//!   its off-peak price.
 //! - `cost_score = 1 - (ln(1+c) - ln(1+c_min)) / (ln(1+c_max) - ln(1+c_min))`
 //!   over the candidates that survive the hard filters. `beam-free` sets
 //!   `c_min = 0` and scores 1.0 for the unfiltered profiles; paid candidates
@@ -18,20 +18,23 @@
 //!   cost >= 0.90 is `CheapCost`, cache-read <= $0.01/Mtok is `CheapCache`,
 //!   allowance >= 75% of the largest published limit is `AllowanceHeadroom`,
 //!   and a full context score is `ContextFit`. Visual/UI and Agentic/Tools/MCP
-//!   add `VisionRequired` and `ToolsRequired` respectively.
+//!   add `VisionRequired` and `ToolsRequired`; picks whose capability entry
+//!   sets `data_terms` append `DataTerms`. The window code names the picked
+//!   model's vendor, so flat vendors stay `OffPeakWindow` during DeepSeek peak.
 //!
-//! Resulting winners (the global peak multiplier preserves the ranking):
-//! simple-coding, complex-coding, agentic-tools and large-refactor ->
-//! DeepSeek V4.1 Flash (top capability within its profile plus the max 80 USD
-//! allowance); visual-ui -> Muse Spark 1.3 Contributor (cheapest vision model,
-//! 8.4 capability, 60 USD allowance).
+//! Resulting winners: simple-coding and agentic-tools -> DeepSeek V4.1 Flash
+//! (top capability within the profile plus the max 80 USD allowance);
+//! complex-coding and large-refactor -> DeepSeek V4.1 Flash off-peak, Muse
+//! Spark 1.3 Contributor at peak (DeepSeek's cost score falls below Muse's
+//! flat-price score); visual-ui -> Muse Spark 1.3 Contributor in both states
+//! (cheapest vision model, flat Meta price).
 
-use chrono::{TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use cost_guard_core::catalog::{CatalogSnapshot, parse_snapshot};
 use cost_guard_core::config::{Config, TaskProfile};
 use cost_guard_core::overlay::Overlays;
 use cost_guard_core::recommend::{Engine, ReasonCode, Recommendation};
-use cost_guard_core::schedule::{WindowState, state_at};
+use cost_guard_core::schedule::state_at;
 
 /// One matrix expectation, paired with the reasoning that produced it.
 struct Row {
@@ -42,17 +45,28 @@ struct Row {
     rationale: &'static str,
 }
 
+const COMPLEX_PEAK: [ReasonCode; 7] = [
+    ReasonCode::OffPeakWindow,
+    ReasonCode::StrongFit,
+    ReasonCode::CheapCost,
+    ReasonCode::CheapCache,
+    ReasonCode::AllowanceHeadroom,
+    ReasonCode::ContextFit,
+    ReasonCode::DataTerms,
+];
 const REFACTOR_OFF_PEAK: [ReasonCode; 4] = [
     ReasonCode::OffPeakWindow,
     ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
 ];
-const REFACTOR_PEAK: [ReasonCode; 4] = [
-    ReasonCode::PeakWindow,
+const REFACTOR_PEAK: [ReasonCode; 6] = [
+    ReasonCode::OffPeakWindow,
+    ReasonCode::CheapCost,
     ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
+    ReasonCode::DataTerms,
 ];
 const SIMPLE_OFF_PEAK: [ReasonCode; 5] = [
     ReasonCode::OffPeakWindow,
@@ -84,21 +98,23 @@ const AGENTIC_PEAK: [ReasonCode; 6] = [
     ReasonCode::ContextFit,
     ReasonCode::ToolsRequired,
 ];
-const VISUAL_OFF_PEAK: [ReasonCode; 6] = [
+const VISUAL_OFF_PEAK: [ReasonCode; 7] = [
     ReasonCode::OffPeakWindow,
     ReasonCode::CheapCost,
     ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
     ReasonCode::VisionRequired,
+    ReasonCode::DataTerms,
 ];
-const VISUAL_PEAK: [ReasonCode; 6] = [
-    ReasonCode::PeakWindow,
+const VISUAL_PEAK: [ReasonCode; 7] = [
+    ReasonCode::OffPeakWindow,
     ReasonCode::CheapCost,
     ReasonCode::CheapCache,
     ReasonCode::AllowanceHeadroom,
     ReasonCode::ContextFit,
     ReasonCode::VisionRequired,
+    ReasonCode::DataTerms,
 ];
 
 const ROWS: &[Row] = &[
@@ -126,9 +142,9 @@ const ROWS: &[Row] = &[
     Row {
         profile: TaskProfile::ComplexCoding,
         peak: true,
-        winner: "deepseek-v4.1-flash",
-        codes: &SIMPLE_PEAK,
-        rationale: "peak: the global 2x scales every candidate, so log-normalized cost scores and the winner are unchanged and only the window code differs",
+        winner: "muse-spark-1.3-contributor",
+        codes: &COMPLEX_PEAK,
+        rationale: "peak: DeepSeek doubles to 0.885 and its cost score drops to 0.768, so flat Meta at 0.165 (0.944) plus 8.6 capability overtakes DeepSeek's 8.9",
     },
     Row {
         profile: TaskProfile::VisualUi,
@@ -142,7 +158,7 @@ const ROWS: &[Row] = &[
         peak: true,
         winner: "muse-spark-1.3-contributor",
         codes: &VISUAL_PEAK,
-        rationale: "peak: every vision candidate doubles, so Muse 1.3 keeps cost_score 1.0 and the visual winner stands",
+        rationale: "peak: Meta has no Pricing Window, so Muse 1.3 keeps its 0.165 flat cost and OffPeakWindow code; DeepSeek's 2x only removes it from the alternatives",
     },
     Row {
         profile: TaskProfile::AgenticTools,
@@ -168,9 +184,9 @@ const ROWS: &[Row] = &[
     Row {
         profile: TaskProfile::LargeRefactor,
         peak: true,
-        winner: "deepseek-v4.1-flash",
+        winner: "muse-spark-1.3-contributor",
         codes: &REFACTOR_PEAK,
-        rationale: "peak: the global 2x leaves cost scores unchanged in ratio, so the refactor winner holds and only the window code differs",
+        rationale: "peak: DeepSeek's cost score drops to 0.768 while flat Meta holds 0.944; Muse's 8.2 refactor rating and 60 USD allowance now outweigh the 0.2 capability gap",
     },
 ];
 
@@ -185,7 +201,7 @@ fn data() -> (CatalogSnapshot, Overlays) {
 }
 
 /// Fixed instants: Monday 00:30 UTC is off-peak, Monday 02:00 UTC is peak.
-fn window_for(peak: bool, overlays: &Overlays) -> WindowState {
+fn instant_for(peak: bool, overlays: &Overlays) -> DateTime<Utc> {
     let instant = if peak {
         Utc.with_ymd_and_hms(2026, 10, 26, 2, 0, 0)
             .single()
@@ -198,7 +214,8 @@ fn window_for(peak: bool, overlays: &Overlays) -> WindowState {
 
     let state = state_at(instant, overlays);
     assert_eq!(state.peak, peak, "fixture instant has the wrong state");
-    state
+    assert_eq!(state.provider, "deepseek");
+    instant
 }
 
 fn codes(recommendation: &Recommendation) -> Vec<ReasonCode> {
@@ -226,8 +243,7 @@ fn recommendation_matrix_matches_hand_derived_expectations() {
     let engine = Engine::new(&snapshot, &overlays, &config);
 
     for row in ROWS {
-        let window = window_for(row.peak, &overlays);
-        let recommendation = engine.recommend(row.profile, &window);
+        let recommendation = engine.recommend(row.profile, instant_for(row.peak, &overlays));
         let pick = recommendation
             .pick
             .as_ref()
@@ -247,14 +263,14 @@ fn recommendation_matrix_matches_hand_derived_expectations() {
 }
 
 #[test]
-fn peak_multiplier_doubles_the_winning_effective_cost() {
+fn peak_scales_only_deepseek_picks() {
     let (snapshot, overlays) = data();
     let config = Config::default();
     let engine = Engine::new(&snapshot, &overlays, &config);
 
-    for profile in TaskProfile::ALL {
-        let off_peak = engine.recommend(profile, &window_for(false, &overlays));
-        let peak = engine.recommend(profile, &window_for(true, &overlays));
+    for profile in [TaskProfile::SimpleCoding, TaskProfile::AgenticTools] {
+        let off_peak = engine.recommend(profile, instant_for(false, &overlays));
+        let peak = engine.recommend(profile, instant_for(true, &overlays));
 
         let off_pick = off_peak.pick.expect("off-peak pick");
         let peak_pick = peak.pick.expect("peak pick");
@@ -266,4 +282,16 @@ fn peak_multiplier_doubles_the_winning_effective_cost() {
             off_pick.cost_index
         );
     }
+
+    let off_peak = engine.recommend(TaskProfile::VisualUi, instant_for(false, &overlays));
+    let peak = engine.recommend(TaskProfile::VisualUi, instant_for(true, &overlays));
+    let off_pick = off_peak.pick.expect("off-peak pick");
+    let peak_pick = peak.pick.expect("peak pick");
+    assert_eq!(off_pick.model_id, peak_pick.model_id);
+    assert!(
+        (peak_pick.cost_index - off_pick.cost_index).abs() < 1e-12,
+        "flat vendor pick changed cost at peak: {} -> {}",
+        off_pick.cost_index,
+        peak_pick.cost_index
+    );
 }
