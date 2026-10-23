@@ -331,10 +331,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] `parse_mirror` returns roster models and a skipped list for entries missing required fields
-- [ ] Deprecated entries are excluded
-- [ ] Unit tests cover: valid fixture, missing fields, deprecated filtering, snapshot JSON round-trip
-- [ ] Gate passes: quick gate command
+- [x] `parse_mirror` returns roster models and a skipped list for entries missing required fields
+- [x] Deprecated entries are excluded
+- [x] Unit tests cover: valid fixture, missing fields, deprecated filtering, snapshot JSON round-trip
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
