@@ -480,8 +480,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests with stub clients cover: 200 valid → Updated(Remote); 304 → NotModified with unchanged files; network error → LastValid; invalid payload → LastValid untouched; empty roster → invalid; 304 without snapshot → Bundled; skipped-entry warnings surfaced
-- [ ] Gate passes: quick gate command
+- [x] Unit tests with stub clients cover: 200 valid → Updated(Remote); 304 → NotModified with unchanged files; network error → LastValid; invalid payload → LastValid untouched; empty roster → invalid; 304 without snapshot → Bundled; skipped-entry warnings surfaced
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
