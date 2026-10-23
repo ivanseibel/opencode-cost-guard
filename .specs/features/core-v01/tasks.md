@@ -504,8 +504,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: added, removed, price change per field, capability change, identical snapshots → empty
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: added, removed, price change per field, capability change, identical snapshots → empty
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick

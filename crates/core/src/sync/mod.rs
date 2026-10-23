@@ -10,6 +10,7 @@ use crate::catalog::{CatalogSnapshot, parse_mirror};
 use crate::sync::http::{HttpClient, HttpResponse};
 use crate::sync::snapshot::SnapshotStore;
 
+pub mod changes;
 pub mod http;
 pub mod snapshot;
 
