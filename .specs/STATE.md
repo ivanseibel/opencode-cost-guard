@@ -46,6 +46,14 @@
 - **Date**: 2026-10-23
 - **Status**: active
 
+### AD-006
+- **Decision**: Peak pricing is applied per vendor (only models whose curated `vendor` has an active Pricing Window), and capability review must never assume a uniform price multiplier. Cost scoring uses a log-scaled min-max so zero-cost candidates do not collapse paid candidates to zero.
+- **Reason**: core-v01 shipped a uniform multiplier that canceled in normalization (peak never changed a winner) and a `min/cost` ratio that zeroed every paid candidate whenever a free model was eligible.
+- **Trade-off**: Recommendations now depend on curated `vendor` data; contributor models stay eligible and are flagged with a `DataTerms` reason instead of being excluded.
+- **Scope**: Recommendation scoring, catalog/overlay data, acceptance matrix.
+- **Date**: 2026-10-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: core-v01 — complete (Verifier PASS, 41/41 ACs, 6/6 mutations killed)
