@@ -357,9 +357,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Bundled overlays load; load_dir loads the repo `data/` directory
-- [ ] Unit tests cover: missing metadata names file/entry; malformed window fails; unrated model warning; uncovered-year warning; per-entry override accepted and validated
-- [ ] Gate passes: quick gate command
+- [x] Bundled overlays load; load_dir loads the repo `data/` directory
+- [x] Unit tests cover: missing metadata names file/entry; malformed window fails; unrated model warning; uncovered-year warning; per-entry override accepted and validated
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
