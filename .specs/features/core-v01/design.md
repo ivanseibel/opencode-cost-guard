@@ -94,7 +94,7 @@ graph TD
 - **Location**: `crates/core/src/sync/mod.rs`, `crates/core/src/sync/http.rs`
 - **Interfaces**:
   - `trait HttpClient { fn get(&self, url: &str, etag: Option<&str>) -> Result<HttpResponse, HttpError>; }`
-  - `HiResponse { status: u16, body: String, etag: Option<String> }` — note: struct name `HttpResponse`
+  - `HttpResponse { status: u16, body: String, etag: Option<String> }`
   - `UreqClient::new(Duration::from_secs(10))`
   - `SyncEngine::new(client: &dyn HttpClient, store: SnapshotStore, bundled: CatalogSnapshot)`
   - `SyncEngine::sync() -> SyncOutcome { status: SyncStatus, warnings }`

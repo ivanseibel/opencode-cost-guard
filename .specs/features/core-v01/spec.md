@@ -89,7 +89,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria**:
 
-1. DATA-01 WHEN Overlays load THEN every entry SHALL carry non-empty `source` and `lastVerified`; IF either is missing THEN loading SHALL fail naming the offending entry.
+1. DATA-01 WHEN Overlays load THEN every Overlay file SHALL declare non-empty `source` and `lastVerified`, inherited by its entries; per-entry overrides SHALL also be non-empty; IF a required value is missing THEN loading SHALL fail naming the file or entry.
 2. DATA-02 The Overlay set SHALL define peak windows and the peak multiplier (2×) for DeepSeek, the CN holiday calendar including makeup weekends, monthly Go limits per model, and per-model capability ratings (tier plus vision/tools/reasoning/context flags) for every Roster model.
 3. DATA-03 IF a window definition is malformed (end not after start, or outside 00:00–24:00) THEN loading SHALL fail naming the entry.
 4. DATA-04 WHEN models in the catalog lack a capability rating THEN validation SHALL emit a warning listing them.
@@ -195,53 +195,53 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story       | Phase  | Status  |
 | -------------- | ----------- | ------ | ------- |
-| SCAF-01        | P1: Scaffold | Design | Pending |
-| SCAF-02        | P1: Scaffold | Design | Pending |
-| SCAF-03        | P1: Scaffold | Design | Pending |
-| SCHED-01       | P1: Schedule | Design | Pending |
-| SCHED-02       | P1: Schedule | Design | Pending |
-| SCHED-03       | P1: Schedule | Design | Pending |
-| SCHED-04       | P1: Schedule | Design | Pending |
-| SCHED-05       | P1: Schedule | Design | Pending |
-| SCHED-06       | P1: Schedule | Design | Pending |
-| DATA-01        | P1: Overlays | Design | Pending |
-| DATA-02        | P1: Overlays | Design | Pending |
-| DATA-03        | P1: Overlays | Design | Pending |
-| DATA-04        | P1: Overlays | Design | Pending |
-| DATA-05        | P1: Overlays | Design | Pending |
-| SYNC-01        | P1: Sync    | Design | Pending |
-| SYNC-02        | P1: Sync    | Design | Pending |
-| SYNC-03        | P1: Sync    | Design | Pending |
-| SYNC-04        | P1: Sync    | Design | Pending |
-| SYNC-05        | P1: Sync    | Design | Pending |
-| SYNC-06        | P1: Sync    | Design | Pending |
-| SYNC-07        | P1: Sync    | Design | Pending |
-| SYNC-08        | P1: Sync    | Design | Pending |
-| SYNC-09        | P1: Sync    | Design | Pending |
-| SYNC-10        | P1: Sync    | Design | Pending |
-| REC-01         | P1: Recommend | Design | Pending |
-| REC-02         | P1: Recommend | Design | Pending |
-| REC-03         | P1: Recommend | Design | Pending |
-| REC-04         | P1: Recommend | Design | Pending |
-| REC-05         | P1: Recommend | Design | Pending |
-| REC-06         | P1: Recommend | Design | Pending |
-| REC-07         | P1: Recommend | Design | Pending |
-| REC-08         | P1: Recommend | Design | Pending |
-| REC-09         | P1: Recommend | Design | Pending |
-| REC-10         | P1: Recommend | Design | Pending |
-| REC-11         | P1: Recommend | Design | Pending |
-| CFG-01         | P1: Config  | Design | Pending |
-| CFG-02         | P1: Config  | Design | Pending |
-| CFG-03         | P1: Config  | Design | Pending |
-| CFG-04         | P1: Config  | Design | Pending |
-| DEMO-01        | P2: Demo    | Design | Pending |
-| DEMO-02        | P2: Demo    | Design | Pending |
+| SCAF-01        | P1: Scaffold | Tasks | In Tasks |
+| SCAF-02        | P1: Scaffold | Tasks | In Tasks |
+| SCAF-03        | P1: Scaffold | Tasks | In Tasks |
+| SCHED-01       | P1: Schedule | Tasks | In Tasks |
+| SCHED-02       | P1: Schedule | Tasks | In Tasks |
+| SCHED-03       | P1: Schedule | Tasks | In Tasks |
+| SCHED-04       | P1: Schedule | Tasks | In Tasks |
+| SCHED-05       | P1: Schedule | Tasks | In Tasks |
+| SCHED-06       | P1: Schedule | Tasks | In Tasks |
+| DATA-01        | P1: Overlays | Tasks | In Tasks |
+| DATA-02        | P1: Overlays | Tasks | In Tasks |
+| DATA-03        | P1: Overlays | Tasks | In Tasks |
+| DATA-04        | P1: Overlays | Tasks | In Tasks |
+| DATA-05        | P1: Overlays | Tasks | In Tasks |
+| SYNC-01        | P1: Sync    | Tasks | In Tasks |
+| SYNC-02        | P1: Sync    | Tasks | In Tasks |
+| SYNC-03        | P1: Sync    | Tasks | In Tasks |
+| SYNC-04        | P1: Sync    | Tasks | In Tasks |
+| SYNC-05        | P1: Sync    | Tasks | In Tasks |
+| SYNC-06        | P1: Sync    | Tasks | In Tasks |
+| SYNC-07        | P1: Sync    | Tasks | In Tasks |
+| SYNC-08        | P1: Sync    | Tasks | In Tasks |
+| SYNC-09        | P1: Sync    | Tasks | In Tasks |
+| SYNC-10        | P1: Sync    | Tasks | In Tasks |
+| REC-01         | P1: Recommend | Tasks | In Tasks |
+| REC-02         | P1: Recommend | Tasks | In Tasks |
+| REC-03         | P1: Recommend | Tasks | In Tasks |
+| REC-04         | P1: Recommend | Tasks | In Tasks |
+| REC-05         | P1: Recommend | Tasks | In Tasks |
+| REC-06         | P1: Recommend | Tasks | In Tasks |
+| REC-07         | P1: Recommend | Tasks | In Tasks |
+| REC-08         | P1: Recommend | Tasks | In Tasks |
+| REC-09         | P1: Recommend | Tasks | In Tasks |
+| REC-10         | P1: Recommend | Tasks | In Tasks |
+| REC-11         | P1: Recommend | Tasks | In Tasks |
+| CFG-01         | P1: Config  | Tasks | In Tasks |
+| CFG-02         | P1: Config  | Tasks | In Tasks |
+| CFG-03         | P1: Config  | Tasks | In Tasks |
+| CFG-04         | P1: Config  | Tasks | In Tasks |
+| DEMO-01        | P2: Demo    | Tasks | In Tasks |
+| DEMO-02        | P2: Demo    | Tasks | In Tasks |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 41 total, 0 mapped to tasks (Tasks phase pending), 41 unmapped ⚠️
+**Coverage:** 41 total, 41 mapped to tasks, 0 unmapped
 
 ---
 
