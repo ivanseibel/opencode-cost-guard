@@ -601,9 +601,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests with a fixed clock assert: state line, next transition in UTC and local, five profile sections with reasons, source label
-- [ ] Rendering is deterministic for equal input
-- [ ] Gate passes: quick gate command
+- [x] Unit tests with a fixed clock assert: state line, next transition in UTC and local, five profile sections with reasons, source label
+- [x] Rendering is deterministic for equal input
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
