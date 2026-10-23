@@ -279,10 +279,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Every snapshot model id appears with `monthly_usd`, or is explicitly listed as unlisted with a note
-- [ ] `source` and `last_verified` present and citable
-- [ ] File parses as TOML
-- [ ] Gate passes: build gate command
+- [x] Every snapshot model id appears with `monthly_usd`, or is explicitly listed as unlisted with a note
+- [x] `source` and `last_verified` present and citable
+- [x] File parses as TOML
+- [x] Gate passes: build gate command
 
 **Tests**: none (curated data, validated by T11)
 **Gate**: build
