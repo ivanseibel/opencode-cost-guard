@@ -528,8 +528,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: peak doubles effective price; cost_index weights; normalization across candidates; lower cost wins ties; equal cost orders by model id; reason-code derivation inputs
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: peak doubles effective price; cost_index weights; normalization across candidates; lower cost wins ties; equal cost orders by model id; reason-code derivation inputs
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
