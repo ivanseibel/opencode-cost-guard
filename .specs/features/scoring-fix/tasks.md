@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: skipped (Medium scope; design decisions live in `spec.md` Assumptions)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -199,11 +199,11 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Each row documents the hand-derivation (one line per row)
-- [ ] Expectations were derived from the formula, not from engine output
-- [ ] Synthetic flip test: vendor model wins off-peak, rival wins at peak
-- [ ] Matrix runs offline
-- [ ] Gate passes: full gate command
+- [x] Each row documents the hand-derivation (one line per row)
+- [x] Expectations were derived from the formula, not from engine output
+- [x] Synthetic flip test: vendor model wins off-peak, rival wins at peak
+- [x] Matrix runs offline
+- [x] Gate passes: full gate command
 
 **Tests**: integration
 **Gate**: full

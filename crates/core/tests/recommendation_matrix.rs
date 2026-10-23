@@ -30,11 +30,15 @@
 //! (cheapest vision model, flat Meta price).
 
 use chrono::{DateTime, TimeZone, Utc};
-use cost_guard_core::catalog::{CatalogSnapshot, parse_snapshot};
+use cost_guard_core::catalog::{CatalogSnapshot, ModelEntry, Price, parse_snapshot};
 use cost_guard_core::config::{Config, TaskProfile};
-use cost_guard_core::overlay::Overlays;
+use cost_guard_core::overlay::{
+    CapabilitiesOverlay, HolidayYear, HolidaysOverlay, LimitsOverlay, ModelCapability, Overlays,
+    PricingWindow, ProviderWindows, Tier, WindowsOverlay,
+};
 use cost_guard_core::recommend::{Engine, ReasonCode, Recommendation};
 use cost_guard_core::schedule::state_at;
+use std::collections::BTreeMap;
 
 /// One matrix expectation, paired with the reasoning that produced it.
 struct Row {
@@ -123,70 +127,70 @@ const ROWS: &[Row] = &[
         peak: false,
         winner: "deepseek-v4.1-flash",
         codes: &SIMPLE_OFF_PEAK,
-        rationale: "off-peak: 8.6 simple capability and the 80 USD max allowance beat every paid peer; free beam-free sets the cost floor",
+        rationale: "off-peak: 0.55*0.86 + 0.30*0.866 + 0.10*1.00 + 0.05*1.00 = 0.8828; runner Muse 1.3 scores 0.8372",
     },
     Row {
         profile: TaskProfile::SimpleCoding,
         peak: true,
         winner: "deepseek-v4.1-flash",
         codes: &SIMPLE_PEAK,
-        rationale: "peak: uniform 2x preserves normalized cost ratios, so the off-peak winner holds and only the window code changes",
+        rationale: "peak: DeepSeek 0.4425 -> 0.8850 drops cost 0.866 -> 0.768, score 0.8534; Muse stays flat at 0.8372",
     },
     Row {
         profile: TaskProfile::ComplexCoding,
         peak: false,
         winner: "deepseek-v4.1-flash",
         codes: &SIMPLE_OFF_PEAK,
-        rationale: "off-peak: 8.9 complex capability plus a 0.866 log cost score and the 80 USD max allowance beat every paid peer; free beam-free sets c_min = 0",
+        rationale: "off-peak: 0.55*0.89 + 0.30*0.866 + 0.10*1.00 + 0.05*1.00 = 0.8993; runner Muse 1.3 scores 0.8812",
     },
     Row {
         profile: TaskProfile::ComplexCoding,
         peak: true,
         winner: "muse-spark-1.3-contributor",
         codes: &COMPLEX_PEAK,
-        rationale: "peak: DeepSeek doubles to 0.885 and its cost score drops to 0.768, so flat Meta at 0.165 (0.944) plus 8.6 capability overtakes DeepSeek's 8.9",
+        rationale: "peak: DeepSeek falls to 0.8699; Muse's flat 0.165 gives cost 0.944 and 0.55*0.86 + 0.30*0.944 + 0.10*0.75 + 0.05*1.00 = 0.8812",
     },
     Row {
         profile: TaskProfile::VisualUi,
         peak: false,
         winner: "muse-spark-1.3-contributor",
         codes: &VISUAL_OFF_PEAK,
-        rationale: "off-peak: beam-free lacks vision, so the cheapest vision model (Muse 1.3) owns cost_score 1.0 and its 8.4 visual rating beats other cheap vision models",
+        rationale: "off-peak: beam-free lacks vision, so Muse 1.3 sets c_min = 0.165 and cost 1.0; 0.55*0.84 + 0.30*1.00 + 0.10*0.75 + 0.05*1.00 = 0.8870, runner mimo-v2.5 0.8861",
     },
     Row {
         profile: TaskProfile::VisualUi,
         peak: true,
         winner: "muse-spark-1.3-contributor",
         codes: &VISUAL_PEAK,
-        rationale: "peak: Meta has no Pricing Window, so Muse 1.3 keeps its 0.165 flat cost and OffPeakWindow code; DeepSeek's 2x only removes it from the alternatives",
+        rationale: "peak: Meta has no window, so the same 0.8870 stands; DeepSeek's 2x only drops it from the alternatives",
     },
     Row {
         profile: TaskProfile::AgenticTools,
         peak: false,
         winner: "deepseek-v4.1-flash",
         codes: &AGENTIC_OFF_PEAK,
-        rationale: "off-peak: 9.2 agentic capability plus the 80 USD max allowance outweigh Kimi K3.1 Pro's 9.6 rating with a 15 USD allowance",
+        rationale: "off-peak: 0.55*0.92 + 0.30*0.866 + 0.10*1.00 + 0.05*1.00 = 0.9158; runner Muse 1.3 scores 0.8702",
     },
     Row {
         profile: TaskProfile::AgenticTools,
         peak: true,
         winner: "deepseek-v4.1-flash",
         codes: &AGENTIC_PEAK,
-        rationale: "peak: all tool-capable candidates are multiplied, so the normalized ranking and the agentic winner are unchanged",
+        rationale: "peak: cost 0.866 -> 0.768 gives 0.55*0.92 + 0.30*0.768 + 0.10*1.00 + 0.05*1.00 = 0.8864; Muse stays 0.8702",
     },
     Row {
         profile: TaskProfile::LargeRefactor,
         peak: false,
         winner: "deepseek-v4.1-flash",
         codes: &REFACTOR_OFF_PEAK,
-        rationale: "off-peak: 8.4 refactor capability is below StrongFit but the 0.866 log cost score, 80 USD max allowance and full context carry the score",
+        rationale: "off-peak: 0.55*0.84 + 0.30*0.866 + 0.10*1.00 + 0.05*1.00 = 0.8718; runner Muse 1.3 scores 0.8592",
     },
     Row {
         profile: TaskProfile::LargeRefactor,
         peak: true,
         winner: "muse-spark-1.3-contributor",
         codes: &REFACTOR_PEAK,
-        rationale: "peak: DeepSeek's cost score drops to 0.768 while flat Meta holds 0.944; Muse's 8.2 refactor rating and 60 USD allowance now outweigh the 0.2 capability gap",
+        rationale: "peak: Muse's flat cost 0.944 gives 0.55*0.82 + 0.30*0.944 + 0.10*0.75 + 0.05*1.00 = 0.8592 vs DeepSeek 0.8424 after its 2x",
     },
 ];
 
@@ -293,5 +297,141 @@ fn peak_scales_only_deepseek_picks() {
         "flat vendor pick changed cost at peak: {} -> {}",
         off_pick.cost_index,
         peak_pick.cost_index
+    );
+}
+
+fn synthetic_capability(id: &str, vendor: &str, simple: f64) -> ModelCapability {
+    ModelCapability {
+        id: id.to_string(),
+        vendor: vendor.to_string(),
+        tier: Tier::Frontier,
+        vision: true,
+        tools: true,
+        reasoning: true,
+        context: 1_000_000,
+        data_terms: false,
+        profiles: BTreeMap::from([("simple".to_string(), simple)]),
+        notes: None,
+        source: "https://example.com/synthetic".to_string(),
+        last_verified: "2026-10-23".to_string(),
+    }
+}
+
+fn synthetic_model(id: &str) -> ModelEntry {
+    ModelEntry {
+        id: id.to_string(),
+        provider_id: "opencode-go".to_string(),
+        name: id.to_string(),
+        price: Price {
+            input: 1.0,
+            output: 1.0,
+        },
+        cache_read: 0.01,
+        context: 1_000_000,
+        tool_call: true,
+        attachment: true,
+        reasoning: true,
+        release_date: None,
+    }
+}
+
+fn synthetic_snapshot() -> CatalogSnapshot {
+    CatalogSnapshot {
+        schema: 1,
+        source: "https://example.com/synthetic".to_string(),
+        etag: None,
+        fetched_at: "2026-10-23T00:00:00Z".to_string(),
+        models: vec![synthetic_model("vendor-a"), synthetic_model("rival-b")],
+    }
+}
+
+fn synthetic_overlays() -> Overlays {
+    let source = || "https://example.com/synthetic".to_string();
+    let last_verified = || "2026-10-23".to_string();
+
+    Overlays {
+        windows: WindowsOverlay {
+            schema: 1,
+            source: source(),
+            last_verified: last_verified(),
+            providers: vec![ProviderWindows {
+                provider: "deepseek".to_string(),
+                multiplier: 2.0,
+                days: ["Mon", "Tue", "Wed", "Thu", "Fri"]
+                    .iter()
+                    .map(|day| day.to_string())
+                    .collect(),
+                windows: vec![PricingWindow {
+                    start_minutes: 60,
+                    end_minutes: 240,
+                }],
+                source: source(),
+                last_verified: last_verified(),
+            }],
+        },
+        holidays: HolidaysOverlay {
+            schema: 1,
+            source: source(),
+            last_verified: last_verified(),
+            years: vec![HolidayYear {
+                year: 2026,
+                holidays: Vec::new(),
+                makeup_weekends: Vec::new(),
+                source: source(),
+                last_verified: last_verified(),
+            }],
+        },
+        limits: LimitsOverlay {
+            schema: 1,
+            source: source(),
+            last_verified: last_verified(),
+            plan: None,
+            models: Vec::new(),
+        },
+        capabilities: CapabilitiesOverlay {
+            schema: 1,
+            source: source(),
+            last_verified: last_verified(),
+            models: vec![
+                synthetic_capability("vendor-a", "deepseek", 9.0),
+                synthetic_capability("rival-b", "anthropic", 7.0),
+            ],
+        },
+    }
+}
+
+/// MATRIX-02: a rival wins at peak once only the vendor's price doubles.
+///
+/// Both models cost 1.0 off-peak, so the log range is degenerate and both
+/// score cost 1.0; vendor-a wins on 0.90 vs 0.70 capability. At peak only
+/// vendor-a doubles (2.0), so rival-b takes cost 1.0 and scores 0.785 while
+/// vendor-a's capability edge cannot cover the 0.30 cost loss.
+#[test]
+fn synthetic_peak_multiplier_flips_the_winner() {
+    let snapshot = synthetic_snapshot();
+    let overlays = synthetic_overlays();
+    let config = Config::default();
+    let engine = Engine::new(&snapshot, &overlays, &config);
+
+    let off_peak = engine.recommend(TaskProfile::SimpleCoding, instant_for(false, &overlays));
+    let peak = engine.recommend(TaskProfile::SimpleCoding, instant_for(true, &overlays));
+
+    let off_pick = off_peak.pick.as_ref().expect("off-peak pick");
+    assert_eq!(off_pick.model_id, "vendor-a");
+    assert!((off_pick.cost_index - 1.0).abs() < 1e-12);
+
+    let peak_pick = peak.pick.as_ref().expect("peak pick");
+    assert_eq!(peak_pick.model_id, "rival-b");
+    assert!((peak_pick.cost_index - 1.0).abs() < 1e-12);
+
+    let repriced = peak
+        .alternatives
+        .iter()
+        .find(|pick| pick.model_id == "vendor-a")
+        .expect("vendor-a alternative");
+    assert!(
+        (repriced.cost_index - 2.0).abs() < 1e-12,
+        "only vendor-a should double at peak, got {}",
+        repriced.cost_index
     );
 }
