@@ -253,10 +253,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Snapshot parses as JSON and matches the design schema
-- [ ] Contains only provider `opencode-go` models, deprecated entries excluded
-- [ ] `fetched_at` and `source` recorded; model count documented in the commit body
-- [ ] Gate passes: build gate command
+- [x] Snapshot parses as JSON and matches the design schema
+- [x] Contains only provider `opencode-go` models, deprecated entries excluded
+- [x] `fetched_at` and `source` recorded; model count documented in the commit body
+- [x] Gate passes: build gate command
 
 **Tests**: none (data file, parsed by T10/T16 tests)
 **Gate**: build
