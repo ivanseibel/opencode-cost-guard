@@ -176,9 +176,9 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Workflow triggers on push and pull_request with `macos-latest` and `ubuntu-latest` matrix
-- [ ] Steps run `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`
-- [ ] `cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace` passes locally
+- [x] Workflow triggers on push and pull_request with `macos-latest` and `ubuntu-latest` matrix
+- [x] Steps run `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`
+- [x] `cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace` passes locally
 
 **Tests**: none (CI config, build gate only)
 **Gate**: build
