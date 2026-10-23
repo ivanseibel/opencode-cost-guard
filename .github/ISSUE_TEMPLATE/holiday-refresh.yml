@@ -1,0 +1,62 @@
+name: CN holiday calendar refresh
+description: Add or correct a year in data/holidays-cn.toml from the official State Council notice.
+title: "[data] Refresh CN holiday calendar"
+labels: ["data", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when the Chinese State Council publishes the holiday and makeup-weekend schedule for a new year, or when an existing entry is wrong.
+
+        Read the Overlay rules in [CONTRIBUTING.md](https://github.com/ivanseibel/opencode-cost-guard/blob/main/CONTRIBUTING.md#dataholidayscntoml) before opening the PR. Do not paste data from social media summaries.
+  - type: input
+    id: year
+    attributes:
+      label: Calendar year
+      description: The year covered by the official notice.
+      placeholder: "2027"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Official source URL
+      description: Link to the State Council notice.
+      placeholder: "https://www.gov.cn/..."
+    validations:
+      required: true
+  - type: textarea
+    id: holidays
+    attributes:
+      label: Holiday dates
+      description: One YYYY-MM-DD date per line, matching the official notice.
+      placeholder: |
+        2027-01-01
+        2027-02-06
+    validations:
+      required: true
+  - type: textarea
+    id: makeup_weekends
+    attributes:
+      label: Makeup weekend dates
+      description: One YYYY-MM-DD date per line. Enter "none" when the notice lists no adjusted working weekends.
+      placeholder: |
+        2027-02-07
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything unusual about this year, such as a holiday spanning two dates or a late correction.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: Dates match the official notice, including makeup weekends.
+          required: true
+        - label: File-level `source` and `last_verified` are set.
+          required: true
+        - label: "`cargo test -p cost-guard-core` passes locally."
+          required: true

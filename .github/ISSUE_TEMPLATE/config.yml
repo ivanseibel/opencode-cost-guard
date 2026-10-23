@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Product brief and MVP scope
+    url: https://github.com/ivanseibel/opencode-cost-guard/blob/main/docs/mvp.md
+    about: Check the agreed v0.1 scope before filing a feature request.
+  - name: Contributing guide
+    url: https://github.com/ivanseibel/opencode-cost-guard/blob/main/CONTRIBUTING.md
+    about: Development setup, DCO sign-off, and Overlay update procedures.

@@ -150,10 +150,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] README covers build, test, run-the-demo, and the non-affiliation disclaimer
-- [ ] CONTRIBUTING covers DCO sign-off and how to update each Overlay file
-- [ ] `.github/ISSUE_TEMPLATE/` (holiday-refresh template included) and PR template exist
-- [ ] Gate passes: build gate command
+- [x] README covers build, test, run-the-demo, and the non-affiliation disclaimer
+- [x] CONTRIBUTING covers DCO sign-off and how to update each Overlay file
+- [x] `.github/ISSUE_TEMPLATE/` (holiday-refresh template included) and PR template exist
+- [x] Gate passes: build gate command
 
 **Tests**: none (docs, build gate only)
 **Gate**: build
