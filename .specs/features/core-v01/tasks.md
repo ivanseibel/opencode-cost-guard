@@ -407,8 +407,8 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Unit tests cover: defaults when file missing; invalid value errors naming the field and file unmodified; atomic save; unknown-field round-trip; validation rules
-- [ ] Gate passes: quick gate command
+- [x] Unit tests cover: defaults when file missing; invalid value errors naming the field and file unmodified; atomic save; unknown-field round-trip; validation rules
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
