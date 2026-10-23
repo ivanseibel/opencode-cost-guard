@@ -1,0 +1,42 @@
+# Chinese public holidays that suspend DeepSeek peak pricing.
+#
+# Source: State Council of the PRC, "Notice on the arrangement of public
+# holidays in 2026", 国办发明电〔2025〕7号, published 2025-11-04.
+#
+# `holidays` lists every calendar date inside a holiday period, including the
+# weekend days that fall inside the break. `makeup_weekends` lists the weekend
+# dates designated as working days; they stay off-peak because the schedule
+# only charges peak on Monday-Friday dates.
+
+schema = 1
+source = "https://www.gov.cn/zhengce/content/202511/content_7047090.htm"
+last_verified = "2026-10-23"
+
+[[year]]
+year = 2026
+# New Year: Jan 1 (Thu) - Jan 3 (Sat); Jan 4 (Sun) is a working day.
+# Spring Festival: Feb 15 (Sun) - Feb 23 (Mon); Feb 14 and Feb 28 (Sat) work.
+# Qingming: Apr 4 (Sat) - Apr 6 (Mon).
+# Labour Day: May 1 (Fri) - May 5 (Tue); May 9 (Sat) works.
+# Dragon Boat: Jun 19 (Fri) - Jun 21 (Sun).
+# Mid-Autumn: Sep 25 (Fri) - Sep 27 (Sun).
+# National Day: Oct 1 (Thu) - Oct 7 (Wed); Sep 20 (Sun) and Oct 10 (Sat) work.
+holidays = [
+  "2026-01-01", "2026-01-02", "2026-01-03",
+  "2026-02-15", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19",
+  "2026-02-20", "2026-02-21", "2026-02-22", "2026-02-23",
+  "2026-04-04", "2026-04-05", "2026-04-06",
+  "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05",
+  "2026-06-19", "2026-06-20", "2026-06-21",
+  "2026-09-25", "2026-09-26", "2026-09-27",
+  "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05",
+  "2026-10-06", "2026-10-07",
+]
+makeup_weekends = [
+  "2026-01-04",
+  "2026-02-14",
+  "2026-02-28",
+  "2026-05-09",
+  "2026-09-20",
+  "2026-10-10",
+]

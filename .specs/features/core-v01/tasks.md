@@ -227,10 +227,10 @@ T21 → T22
 
 **Done when**:
 
-- [ ] Both files parse as TOML (`python3 -c "import tomllib,..."`)
-- [ ] `source` holds a real, citable URL; `last_verified` is today's date
-- [ ] 2026 holiday and makeup-weekend lists match the official notice, source recorded
-- [ ] Gate passes: build gate command
+- [x] Both files parse as TOML (`python3 -c "import tomllib,..."`)
+- [x] `source` holds a real, citable URL; `last_verified` is today's date
+- [x] 2026 holiday and makeup-weekend lists match the official notice, source recorded
+- [x] Gate passes: build gate command
 
 **Tests**: none (curated data, validated by T11 loader tests)
 **Gate**: build

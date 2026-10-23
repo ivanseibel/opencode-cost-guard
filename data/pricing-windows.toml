@@ -1,0 +1,16 @@
+# DeepSeek peak pricing windows.
+#
+# DeepSeek publishes off-peak prices; peak prices are exactly 2x off-peak.
+# Peak hours are 01:00-04:00 and 06:00-10:00 UTC, Monday through Friday,
+# excluding Chinese public holidays. Everything else is off-peak.
+# Windows are half-open: [start, end).
+
+schema = 1
+source = "https://api-docs.deepseek.com/quick_start/pricing/"
+last_verified = "2026-10-23"
+
+[[provider]]
+provider = "deepseek"
+multiplier = 2.0
+days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+windows = [["01:00", "04:00"], ["06:00", "10:00"]]
