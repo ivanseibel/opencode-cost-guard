@@ -321,11 +321,13 @@ mod tests {
     ) -> ModelCapability {
         ModelCapability {
             id: id.to_string(),
+            vendor: "deepseek".to_string(),
             tier,
             vision,
             tools,
             reasoning: true,
             context: 1_000_000,
+            data_terms: false,
             profiles: BTreeMap::from([(profile.to_string(), score)]),
             notes: None,
             source: "test".to_string(),

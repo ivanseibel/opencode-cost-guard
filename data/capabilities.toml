@@ -19,6 +19,7 @@ last_verified = "2026-10-23"
 
 [[model]]
 id = "beam-free"
+vendor = "reflection"
 tier = "light"
 vision = false
 tools = true
@@ -28,6 +29,7 @@ notes = "Free 23B-active MoE reasoning model, limited time and regions. Small ac
 
 [[model]]
 id = "claude-haiku-5-5"
+vendor = "anthropic"
 tier = "standard"
 vision = true
 tools = true
@@ -38,6 +40,7 @@ notes = "Fast, low-cost Claude Haiku tier. Strong instruction following; weaker 
 
 [[model]]
 id = "deepseek-v4-pro"
+vendor = "deepseek"
 tier = "frontier"
 vision = false
 tools = true
@@ -48,6 +51,7 @@ notes = "Flagship DeepSeek coding model. Text only; no visual profile rating."
 
 [[model]]
 id = "deepseek-v4.1-flash"
+vendor = "deepseek"
 tier = "strong"
 vision = true
 tools = true
@@ -58,6 +62,7 @@ notes = "Flagship-class agentic coding at Flash price. Cheap cache keeps multi-t
 
 [[model]]
 id = "gemini-4-argon-contributor"
+vendor = "google"
 tier = "frontier"
 vision = true
 tools = true
@@ -68,6 +73,7 @@ notes = "Google flagship reasoning model. Contributor pricing means prompts may 
 
 [[model]]
 id = "glm-5.2"
+vendor = "zhipu"
 tier = "strong"
 vision = false
 tools = true
@@ -78,6 +84,7 @@ notes = "Prior GLM flagship. Text only; superseded by GLM-5.3."
 
 [[model]]
 id = "glm-5.3"
+vendor = "zhipu"
 tier = "frontier"
 vision = false
 tools = true
@@ -88,6 +95,7 @@ notes = "Flagship GLM for long-horizon coding agents. Text and tools only."
 
 [[model]]
 id = "glm-5.3-flash"
+vendor = "zhipu"
 tier = "standard"
 vision = true
 tools = true
@@ -98,6 +106,7 @@ notes = "Native multimodal GLM at flash pricing. Efficient coding, not a frontie
 
 [[model]]
 id = "gpt-5.6-luna"
+vendor = "openai"
 tier = "standard"
 vision = true
 tools = true
@@ -108,6 +117,7 @@ notes = "Cost-efficient GPT-5.6 tier for high-volume work."
 
 [[model]]
 id = "gpt-6-luna"
+vendor = "openai"
 tier = "strong"
 vision = true
 tools = true
@@ -118,6 +128,7 @@ notes = "GPT-6 generation efficiency tier. Cheap and multimodal, short of flagsh
 
 [[model]]
 id = "grok-4.7"
+vendor = "xai"
 tier = "frontier"
 vision = true
 tools = true
@@ -128,6 +139,7 @@ notes = "xAI frontier model. Smaller 500K context and a high token price limit i
 
 [[model]]
 id = "hy3"
+vendor = "tencent"
 tier = "standard"
 vision = false
 tools = true
@@ -138,6 +150,7 @@ notes = "Tencent Hy reasoning model. 256K context caps large refactors."
 
 [[model]]
 id = "hy4-preview"
+vendor = "tencent"
 tier = "strong"
 vision = false
 tools = true
@@ -148,6 +161,7 @@ notes = "Preview of the next Hy generation. Long context, text only."
 
 [[model]]
 id = "kimi-k2.7-code"
+vendor = "moonshot"
 tier = "strong"
 vision = true
 tools = true
@@ -158,6 +172,7 @@ notes = "Coding-focused prior-generation Kimi. 256K context."
 
 [[model]]
 id = "kimi-k3"
+vendor = "moonshot"
 tier = "frontier"
 vision = true
 tools = true
@@ -168,6 +183,7 @@ notes = "Multimodal Kimi with 1M context and toggleable max-effort reasoning."
 
 [[model]]
 id = "kimi-k3.1-pro"
+vendor = "moonshot"
 tier = "frontier"
 vision = true
 tools = true
@@ -178,6 +194,7 @@ notes = "Top-end Kimi Pro: always-on reasoning, 1M context, multimodal."
 
 [[model]]
 id = "longcat-2.0"
+vendor = "meituan"
 tier = "standard"
 vision = false
 tools = true
@@ -188,6 +205,7 @@ notes = "Meituan LongCat reasoning model. Very cheap cache read; no vision."
 
 [[model]]
 id = "mimo-v2.5"
+vendor = "xiaomi"
 tier = "standard"
 vision = true
 tools = true
@@ -198,6 +216,7 @@ notes = "Omni model with strong image, video and audio input. Coding is secondar
 
 [[model]]
 id = "mimo-v2.5-pro"
+vendor = "xiaomi"
 tier = "strong"
 vision = false
 tools = true
@@ -208,6 +227,7 @@ notes = "Pro tier of MiMo 2.5. Text only on Go."
 
 [[model]]
 id = "mimo-v2.6-flash"
+vendor = "xiaomi"
 tier = "standard"
 vision = true
 tools = true
@@ -218,6 +238,7 @@ notes = "Flash tier for multimodal coding agents."
 
 [[model]]
 id = "mimo-v2.6-pro"
+vendor = "xiaomi"
 tier = "strong"
 vision = true
 tools = true
@@ -228,6 +249,7 @@ notes = "Stronger MiMo Pro tier for multimodal reasoning and coding agents."
 
 [[model]]
 id = "minimax-m3"
+vendor = "minimax"
 tier = "strong"
 vision = true
 tools = true
@@ -238,6 +260,7 @@ notes = "Multimodal coding model; prior MiniMax generation."
 
 [[model]]
 id = "minimax-m3.1-flash"
+vendor = "minimax"
 tier = "strong"
 vision = true
 tools = true
@@ -248,6 +271,7 @@ notes = "Marketed as a frontier multimodal coding model at flash pricing. Rated 
 
 [[model]]
 id = "muse-spark-1.2-contributor"
+vendor = "meta"
 tier = "standard"
 vision = true
 tools = true
@@ -258,6 +282,7 @@ notes = "Prior Muse Spark contributor generation. Prompts may train Meta models;
 
 [[model]]
 id = "muse-spark-1.3-contributor"
+vendor = "meta"
 tier = "strong"
 vision = true
 tools = true
@@ -268,6 +293,7 @@ notes = "Multimodal Meta contributor tier. Prompts may train models; limited reg
 
 [[model]]
 id = "qwen3.7-plus"
+vendor = "alibaba"
 tier = "strong"
 vision = true
 tools = true
@@ -278,6 +304,7 @@ notes = "Multimodal reasoning model. Token price steps up above 256K input token
 
 [[model]]
 id = "qwen3.8-flash"
+vendor = "alibaba"
 tier = "standard"
 vision = true
 tools = true
@@ -288,6 +315,7 @@ notes = "Vision-language flash tier for documents and screenshots."
 
 [[model]]
 id = "qwen3.8-max"
+vendor = "alibaba"
 tier = "frontier"
 vision = true
 tools = true
@@ -298,6 +326,7 @@ notes = "2.4-trillion-parameter multimodal flagship. Expensive per token."
 
 [[model]]
 id = "step-5-preview"
+vendor = "stepfun"
 tier = "frontier"
 vision = true
 tools = true

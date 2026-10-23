@@ -108,11 +108,15 @@ pub struct CapabilitiesOverlay {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ModelCapability {
     pub id: String,
+    /// Vendor that publishes the model; peak windows are keyed by this name.
+    pub vendor: String,
     pub tier: Tier,
     pub vision: bool,
     pub tools: bool,
     pub reasoning: bool,
     pub context: u64,
+    /// Prompts sent to this model may be used to train the vendor's models.
+    pub data_terms: bool,
     pub profiles: std::collections::BTreeMap<String, f64>,
     pub notes: Option<String>,
     pub source: String,
@@ -163,6 +167,8 @@ pub enum OverlayError {
         entry: String,
         field: &'static str,
     },
+    #[error("{file}: entry `{entry}` must declare a non-empty `vendor`")]
+    MissingVendor { file: String, entry: String },
     #[error("{file}: entry `{entry}` has malformed window [{window}]: {reason}")]
     MalformedWindow {
         file: String,
@@ -544,11 +550,15 @@ struct RawCapabilities {
 #[derive(Debug, Deserialize)]
 struct RawCapability {
     id: String,
+    #[serde(default)]
+    vendor: Option<String>,
     tier: Tier,
     vision: bool,
     tools: bool,
     reasoning: bool,
     context: u64,
+    #[serde(default)]
+    data_terms: bool,
     #[serde(default)]
     profiles: std::collections::BTreeMap<String, f64>,
     #[serde(default)]
@@ -566,6 +576,15 @@ impl RawCapabilities {
 
         let mut models = Vec::with_capacity(self.model.len());
         for entry in self.model {
+            let vendor = match entry.vendor {
+                Some(vendor) if !vendor.trim().is_empty() => vendor.trim().to_string(),
+                _ => {
+                    return Err(OverlayError::MissingVendor {
+                        file: CAPABILITIES_FILE.to_string(),
+                        entry: entry.id.clone(),
+                    });
+                }
+            };
             let (source, last_verified) = resolve_metadata(
                 CAPABILITIES_FILE,
                 &entry.id,
@@ -576,11 +595,13 @@ impl RawCapabilities {
             )?;
             models.push(ModelCapability {
                 id: entry.id,
+                vendor,
                 tier: entry.tier,
                 vision: entry.vision,
                 tools: entry.tools,
                 reasoning: entry.reasoning,
                 context: entry.context,
+                data_terms: entry.data_terms,
                 profiles: entry.profiles,
                 notes: entry.notes,
                 source,
@@ -654,6 +675,7 @@ last_verified = "2026-10-23"
 
 [[model]]
 id = "model-a"
+vendor = "test-vendor"
 tier = "strong"
 vision = true
 tools = true
@@ -785,6 +807,36 @@ profiles = { simple = 8.0, complex = 7.0 }
         let message = error.to_string();
         assert!(message.contains("deepseek"), "{message}");
         assert!(message.contains("00:00-24:00"), "{message}");
+    }
+
+    #[test]
+    fn capabilities_require_a_non_empty_vendor() {
+        let missing = CAPABILITIES.replace("vendor = \"test-vendor\"\n", "");
+        let error = load(WINDOWS, HOLIDAYS, LIMITS, &missing).expect_err("missing vendor fails");
+        let message = error.to_string();
+        assert!(message.contains("capabilities.toml"), "{message}");
+        assert!(message.contains("model-a"), "{message}");
+        assert!(message.contains("vendor"), "{message}");
+
+        let empty = CAPABILITIES.replace("vendor = \"test-vendor\"", "vendor = \"  \"");
+        let error = load(WINDOWS, HOLIDAYS, LIMITS, &empty).expect_err("empty vendor fails");
+        let message = error.to_string();
+        assert!(message.contains("capabilities.toml"), "{message}");
+        assert!(message.contains("model-a"), "{message}");
+        assert!(message.contains("vendor"), "{message}");
+    }
+
+    #[test]
+    fn data_terms_defaults_to_false_and_parses_when_present() {
+        let overlays = default_overlays();
+        let entry = &overlays.capabilities.models[0];
+        assert_eq!(entry.vendor, "test-vendor");
+        assert!(!entry.data_terms);
+
+        let opted_in =
+            CAPABILITIES.replace("reasoning = true", "reasoning = true\ndata_terms = true");
+        let overlays = load(WINDOWS, HOLIDAYS, LIMITS, &opted_in).expect("data_terms parses");
+        assert!(overlays.capabilities.models[0].data_terms);
     }
 
     #[test]

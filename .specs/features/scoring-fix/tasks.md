@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: skipped (Medium scope; design decisions live in `spec.md` Assumptions)
-**Status**: Draft
+**Status**: In Progress
 
 ---
 
@@ -66,10 +66,10 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Loading fails naming the entry when `vendor` is missing or empty
-- [ ] `data_terms` defaults to false when absent
-- [ ] Existing overlay fixtures updated; unit tests added for both rules
-- [ ] Gate passes: quick gate command
+- [x] Loading fails naming the entry when `vendor` is missing or empty
+- [x] `data_terms` defaults to false when absent
+- [x] Existing overlay fixtures updated; unit tests added for both rules
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick

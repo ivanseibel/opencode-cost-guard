@@ -293,11 +293,13 @@ mod tests {
     fn capability(id: &str, tier: Tier, profiles: &[(&str, f64)]) -> ModelCapability {
         ModelCapability {
             id: id.to_string(),
+            vendor: "deepseek".to_string(),
             tier,
             vision: true,
             tools: true,
             reasoning: true,
             context: CONTEXT_TARGET,
+            data_terms: false,
             profiles: profiles
                 .iter()
                 .map(|(key, score)| ((*key).to_string(), *score))
