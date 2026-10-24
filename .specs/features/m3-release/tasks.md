@@ -139,11 +139,11 @@ T1 → T2 → T3 → T4 → T5
 
 **Done when**:
 
-- [ ] Bundle rebuilt, ad-hoc signed, zipped as `CostGuard-v0.1.0-macos-arm64.zip`
-- [ ] `SHA256SUMS.txt` generated and verified with `shasum -a 256 -c`
-- [ ] `dry-run.md` records commands, paths, sizes, checksums and timestamp
-- [ ] Explicit note: no tag, push or GitHub Release performed
-- [ ] Gate passes: build + release gate commands
+- [x] Bundle rebuilt, ad-hoc signed, zipped as `CostGuard-v0.1.0-macos-arm64.zip`
+- [x] `SHA256SUMS.txt` generated and verified with `shasum -a 256 -c`
+- [x] `dry-run.md` records commands, paths, sizes, checksums and timestamp
+- [x] Explicit note: no tag, push or GitHub Release performed
+- [x] Gate passes: build + release gate commands
 
 **Tests**: none (recorded evidence)
 **Gate**: build
