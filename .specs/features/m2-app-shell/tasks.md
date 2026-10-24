@@ -55,7 +55,11 @@ T4 → T5 → T6 → T7 → T8
 ### Phase 3: Settings, CI, smoke
 
 ```
-T8 → T9 → T10 → T11 → T12 → T13
+T8 → T9
+T1 → T10
+T10 → T11
+T11 → T12
+T12 → T13
 ```
 
 ---
@@ -310,7 +314,7 @@ T8 → T9 → T10 → T11 → T12 → T13
 
 **What**: Build the settings page (autostart, notification toggles, default profile, sync interval, ignored models) with `invoke`, inline validation and saved feedback.
 **Where**: `crates/app/ui/settings.js`
-**Depends on**: T9
+**Depends on**: T1 (frozen SettingsDto contract; parallel worktree; end-to-end covered by the smoke phase)
 **Reuses**: generated JSON schema? no; plain HTML/JS with `withGlobalTauri`
 **Requirement**: SET-01, SET-02, APP-02
 
@@ -324,7 +328,7 @@ T8 → T9 → T10 → T11 → T12 → T13
 - [ ] All five settings render and round-trip through `settings_set`
 - [ ] Field errors render next to the input; success shows a saved state
 - [ ] No Node/npm in the build; files load from `frontendDist`
-- [ ] Manual check documented (open window, edit, save, reopen)
+- [ ] End-to-end manual check is covered by T13 (not in this task)
 - [ ] Gate passes: build gate command
 
 **Tests**: none (static UI; manual checklist)
@@ -423,7 +427,7 @@ T5 → T6
 T6 → T7
 T7 → T8
 T8 → T9
-T9 → T10
+T1 → T10
 T10 → T11
 T11 → T12
 T12 → T13
@@ -470,7 +474,7 @@ Verifier runs after Batch C. Batches are sequential because they share `crates/a
 | T7 | T6 | T6 → T7 | ✅ Match |
 | T8 | T7 | T7 → T8 | ✅ Match |
 | T9 | T8 | T8 → T9 | ✅ Match |
-| T10 | T9 | T9 → T10 | ✅ Match |
+| T10 | T1 | T1 → T10 | ✅ Match |
 | T11 | T10 | T10 → T11 | ✅ Match |
 | T12 | T11 | T11 → T12 | ✅ Match |
 | T13 | T12 | T12 → T13 | ✅ Match |
