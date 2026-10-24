@@ -76,5 +76,5 @@
 **Open follow-ups**
 
 - Optional (from validation.md): wire the startup-sync test to the real call site; reload settings on re-show.
-- Review `data/capabilities.toml` seeds (peak recommendation behavior).
+- Calibrate `data/capabilities.toml` scores after dogfooding; contributor models stay eligible per AD-006 (policy decided 2026-10-24).
 - GUI-only smoke legs (native menu clicks, painted settings screenshot) remain observation-only; re-run on an unlocked session with Accessibility if desired.
