@@ -89,7 +89,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
         .menu(&menu)
         .title(presentation.title.clone())
         .tooltip(presentation.title.clone())
-        .show_menu_on_left_click(false);
+        .show_menu_on_left_click(true);
     builder.build(app)?;
 
     store_title(app, presentation.title.clone());

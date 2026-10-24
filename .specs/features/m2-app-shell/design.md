@@ -106,7 +106,7 @@ crates/app/
 - **Purpose**: Native tray and menu; rebuilt only on state change.
 - **Location**: `crates/app/src/menu.rs`, `crates/app/src/tray.rs`
 - **Behavior**: items: state header, next transition (local + UTC), price block, profile check items, recommendation + reason lines, alternatives submenu, source/last-sync line, Acknowledge changes (visible only when badge set), Sync Catalog (disabled while syncing), Settings, Quit.
-- **Tray**: `TrayIconBuilder::with_id("main")` + template icon + `title(...)`, `show_menu_on_left_click(false)`; dynamic `set_title(Some(..))`, `set_menu(Some(menu.clone()))`.
+- **Tray**: `TrayIconBuilder::with_id("main")` + template icon + `title(...)`, `show_menu_on_left_click(true)` (left click opens the menu, the macOS norm); dynamic `set_title(Some(..))`, `set_menu(Some(menu.clone()))`.
 - **Spike-informed rules**: no title write inside `setup()`; coalesce updates; keep width stable; fallback to icon color + tooltip behind `tray_title_ok` flag with a one-time log if `set_title` errors.
 
 ### `settings.rs` + `ui/`
