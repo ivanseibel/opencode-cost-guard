@@ -271,10 +271,10 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Single-flight guard prevents concurrent syncs; manual item disabled while in flight
-- [ ] `apply_sync_outcome` unit tests cover Updated/NotModified/Fallback and badge on/off
-- [ ] Menu shows active source and last successful sync time
-- [ ] Gate passes: quick gate command
+- [x] Single-flight guard prevents concurrent syncs; manual item disabled while in flight
+- [x] `apply_sync_outcome` unit tests cover Updated/NotModified/Fallback and badge on/off
+- [x] Menu shows active source and last successful sync time
+- [x] Gate passes: quick gate command
 
 **Tests**: unit (state application)
 **Gate**: quick
