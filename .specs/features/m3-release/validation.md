@@ -185,3 +185,9 @@ Not applied: the dispatch restricted writes to `validation.md`. Recommended stat
 **Issues found**: no blocking AC gap. Highest-value follow-up is invoking `bash scripts/check-release-config.sh "$GITHUB_REF_NAME"` (or a dedicated version check) in the release workflow before packaging, plus guarding the tag-only publish gate.
 
 **Next steps**: optional hardening tasks for gaps 1-2; otherwise request explicit approval to create and push `v0.1.0`.
+
+---
+
+## Post-validation amendment (2026-10-24)
+
+The two hardening notes were applied before publishing: the release workflow now runs `bash scripts/check-release-config.sh` after checkout, and for tag builds asserts that `v<tauri version>` equals `GITHUB_REF_NAME` before any build or publish step. Workflow YAML parses and the guard passes; publishing remains approval-gated.

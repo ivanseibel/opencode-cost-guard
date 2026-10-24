@@ -77,13 +77,12 @@
 - **Phase / Task**: tasks T1–T5 complete
 - **Completed**: M3 commits `144eb94..16b6914`; 155 workspace tests; release guard green; local dry-run artifact `target/release/CostGuard-v0.1.0-macos-arm64.zip` (4,849,409 bytes) verified
 - **In-progress** (file:line): none
-- **Next step**: publish v0.1.0 only after explicit approval (local tag `v0.1.0` → push tag → release workflow); optional hardening from `validation.md` (run the guard in the release workflow; guard the publish trigger)
+- **Next step**: user UAT of the built app, then publish v0.1.0 only after explicit approval (local tag `v0.1.0` → push tag → release workflow). Release hardening (guard in workflow + tag/version assertion) is applied.
 - **Blockers**: none for local work. `main` is ahead of `origin/main`; push, tag and GitHub Release require an explicit go-ahead.
 - **Uncommitted files**: none
 - **Branch**: main
 
 **Open follow-ups**
 
-- Optional hardening (from m3 validation): invoke `check-release-config.sh` in the release workflow and assert the tag matches the version.
 - M2 optional: wire the startup-sync test to the real call site; reload settings on re-show; GUI-only smoke legs remain observation-only.
 - Contributor policy decided (AD-006): models stay eligible; `DataTerms` is informational.
