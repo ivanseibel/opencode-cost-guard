@@ -53,9 +53,9 @@ T1 → T2 → T3 → T4 → T5
 
 **Done when**:
 
-- [ ] `CHANGELOG.md` has `## 0.1.0` with core + app-shell highlights
-- [ ] Workspace version and `crates/app/tauri.conf.json` version are both `0.1.0`
-- [ ] Gate passes: build gate command (guard script arrives in T4; until then run the rest)
+- [x] `CHANGELOG.md` has `## 0.1.0` with core + app-shell highlights
+- [x] Workspace version and `crates/app/tauri.conf.json` version are both `0.1.0`
+- [x] Gate passes: build gate command (guard script arrives in T4; until then run the rest)
 
 **Tests**: none (docs/versions; guard covers in T4)
 **Gate**: build
