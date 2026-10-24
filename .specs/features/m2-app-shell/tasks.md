@@ -159,11 +159,11 @@ T8 → T9 → T10 → T11 → T12 → T13
 
 **Done when**:
 
-- [ ] First observation initializes without notifying
-- [ ] off→peak and peak→off each fire once; repeated ticks are silent
-- [ ] Disabled `peak_enter`/`peak_exit` suppress the respective transition
-- [ ] Unit tests cover all four cases
-- [ ] Gate passes: quick gate command
+- [x] First observation initializes without notifying
+- [x] off→peak and peak→off each fire once; repeated ticks are silent
+- [x] Disabled `peak_enter`/`peak_exit` suppress the respective transition
+- [x] Unit tests cover all four cases
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
