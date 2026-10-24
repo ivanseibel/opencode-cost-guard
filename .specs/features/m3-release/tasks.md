@@ -118,10 +118,10 @@ T1 → T2 → T3 → T4 → T5
 
 **Done when**:
 
-- [ ] Script exits 0 on the current tree and non-zero when any invariant is removed (test by temporary mutation, then restore)
-- [ ] CI runs it (both OS jobs or the macOS job)
-- [ ] Gate passes: build + release gate commands
-- [ ] Short usage comment at the top of the script
+- [x] Script exits 0 on the current tree and non-zero when any invariant is removed (test by temporary mutation, then restore)
+- [x] CI runs it (both OS jobs or the macOS job)
+- [x] Gate passes: build + release gate commands
+- [x] Short usage comment at the top of the script
 
 **Tests**: none - script is the gate; self-check documented
 **Gate**: build
