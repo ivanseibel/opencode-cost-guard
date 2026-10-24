@@ -83,14 +83,13 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
     let presentation = current_presentation(app);
     let menu = menu::build(app, &presentation)?;
 
-    let mut builder = TrayIconBuilder::with_id(TRAY_ID)
+    let builder = TrayIconBuilder::with_id(TRAY_ID)
+        .icon(tauri::include_image!("icons/tray-template.png"))
+        .icon_as_template(true)
         .menu(&menu)
         .title(presentation.title.clone())
         .tooltip(presentation.title.clone())
         .show_menu_on_left_click(false);
-    if let Some(icon) = app.default_window_icon().cloned() {
-        builder = builder.icon(icon).icon_as_template(true);
-    }
     builder.build(app)?;
 
     store_title(app, presentation.title.clone());
@@ -211,7 +210,7 @@ mod tests {
     fn both_fallback_icons_decode_as_png() {
         for icon in [FallbackIcon::OffPeak, FallbackIcon::Peak] {
             let decoded = Image::from_bytes(icon.bytes()).expect("fallback icon decodes");
-            assert_eq!((decoded.width(), decoded.height()), (32, 32));
+            assert_eq!((decoded.width(), decoded.height()), (44, 44));
         }
     }
 
