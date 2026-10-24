@@ -6,6 +6,7 @@
 
 use chrono::{DateTime, FixedOffset, Utc};
 use cost_guard_core::catalog::ModelEntry;
+use cost_guard_core::overlay::Warning;
 use cost_guard_core::recommend::Recommendation;
 use cost_guard_core::sync::ActiveSource;
 
@@ -99,6 +100,17 @@ pub fn source_line(source: ActiveSource, last_sync: Option<DateTime<Utc>>) -> St
     };
 
     format!("Source: {label} · last sync {synced}")
+}
+
+/// Menu warning lines for non-fatal Overlay validation findings.
+///
+/// The holiday-coverage gap is the user-visible case: peak math keeps working
+/// from the weekday rules, but the menu names the missing year.
+pub fn overlay_warning_lines(warnings: &[Warning]) -> Vec<String> {
+    warnings
+        .iter()
+        .map(|warning| format!("Warning: {warning}"))
+        .collect()
 }
 
 /// Render a multiplier without a trailing `.0` (`2.0` becomes `2`).
@@ -327,6 +339,20 @@ mod tests {
         assert_eq!(
             source_line(ActiveSource::Bundled, None),
             "Source: bundled snapshot · last sync never synced"
+        );
+    }
+
+    #[test]
+    fn overlay_warnings_render_as_menu_lines() {
+        assert_eq!(
+            overlay_warning_lines(&[
+                Warning::UncoveredHolidayYear(2027),
+                Warning::UnratedModel("model-z".to_string()),
+            ]),
+            vec![
+                "Warning: holiday calendar does not cover 2027",
+                "Warning: model `model-z` has no capability rating",
+            ]
         );
     }
 }

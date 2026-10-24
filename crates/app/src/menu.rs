@@ -4,7 +4,7 @@
 //! [`build`] turns that into Tauri menu items. Rebuilding only happens when the
 //! presentation changes, which keeps the open menu stable (TRAY-03, MENU-01..06).
 
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Datelike, Local, Utc};
 use cost_guard_core::config::TaskProfile;
 use cost_guard_core::recommend::Engine;
 use cost_guard_core::schedule::state_for;
@@ -48,6 +48,7 @@ pub struct Presentation {
     pub recommendation: Vec<String>,
     pub alternatives: Vec<String>,
     pub source: String,
+    pub warnings: Vec<String>,
     pub badge: bool,
     pub syncing: bool,
     pub error: Option<String>,
@@ -93,6 +94,9 @@ pub fn present(state: &AppState, syncing: bool, now: DateTime<Utc>) -> Presentat
         recommendation: ui_model::recommendation_lines(&recommendation),
         alternatives: ui_model::alternative_lines(&recommendation),
         source: ui_model::source_line(state.source, state.last_sync_at),
+        warnings: ui_model::overlay_warning_lines(
+            &state.overlays.validate(&state.snapshot.models, now.year()),
+        ),
         badge: state.badge,
         syncing,
         error: state.error.clone(),
@@ -114,7 +118,7 @@ pub fn profile_label(profile: TaskProfile) -> &'static str {
 pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu<Wry>> {
     #[cfg(debug_assertions)]
     eprintln!(
-        "cost-guard: menu built state={} | transition={} | prices={:?} | profile={} | recommendation={:?} | alternatives={:?} | source={} | syncing={} | badge={}",
+        "cost-guard: menu built state={} | transition={} | prices={:?} | profile={} | recommendation={:?} | alternatives={:?} | source={} | warnings={:?} | syncing={} | badge={}",
         presentation.state,
         presentation.transition,
         presentation.prices,
@@ -122,6 +126,7 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
         presentation.recommendation,
         presentation.alternatives,
         presentation.source,
+        presentation.warnings,
         presentation.syncing,
         presentation.badge
     );
@@ -129,6 +134,12 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
     let state_item = label(app, "view:state", &presentation.state)?;
     let transition_item = label(app, "view:transition", &presentation.transition)?;
     let source_item = label(app, "view:source", &presentation.source)?;
+    let warning_items = presentation
+        .warnings
+        .iter()
+        .enumerate()
+        .map(|(index, text)| label(app, &format!("view:warning:{index}"), text))
+        .collect::<tauri::Result<Vec<_>>>()?;
 
     let top_separator = PredefinedMenuItem::separator(app)?;
     let price_separator = PredefinedMenuItem::separator(app)?;
@@ -206,7 +217,13 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
     let settings_item = MenuItem::with_id(app, ID_SETTINGS, "Settings…", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, ID_QUIT, "Quit Cost Guard", true, None::<&str>)?;
 
-    let mut items: Vec<&dyn IsMenuItem<Wry>> = vec![&state_item, &transition_item, &top_separator];
+    let mut items: Vec<&dyn IsMenuItem<Wry>> = vec![&state_item, &transition_item];
+    items.extend(
+        warning_items
+            .iter()
+            .map(|item| item as &dyn IsMenuItem<Wry>),
+    );
+    items.push(&top_separator);
     items.extend(price_items.iter().map(|item| item as &dyn IsMenuItem<Wry>));
     items.push(&price_separator);
     items.extend(
@@ -300,5 +317,49 @@ pub fn show_settings(app: &AppHandle) {
             let _ = window.set_focus();
         }
         Err(error) => eprintln!("cost-guard: failed to open settings: {error}"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone;
+
+    fn instant() -> DateTime<Utc> {
+        Utc.with_ymd_and_hms(2026, 10, 26, 2, 0, 0)
+            .single()
+            .expect("valid instant")
+    }
+
+    #[test]
+    fn bundled_overlays_add_no_warning_lines() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let state = AppState::load(dir.path().to_path_buf()).expect("app state loads");
+
+        let presentation = present(&state, false, instant());
+
+        assert!(presentation.warnings.is_empty(), "{presentation:?}");
+    }
+
+    #[test]
+    fn holiday_coverage_gap_is_surfaced_in_the_presentation() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let mut state = AppState::load(dir.path().to_path_buf()).expect("app state loads");
+        state
+            .overlays
+            .holidays
+            .years
+            .retain(|year| year.year != 2026);
+
+        let presentation = present(&state, false, instant());
+
+        assert_eq!(
+            presentation.warnings,
+            vec!["Warning: holiday calendar does not cover 2026"]
+        );
+        assert_eq!(
+            presentation.state, "🔴 DS 2×",
+            "peak math still works without the holiday calendar"
+        );
     }
 }
