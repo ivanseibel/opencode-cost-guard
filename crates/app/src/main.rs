@@ -1,11 +1,16 @@
 use std::sync::Mutex;
 
-use cost_guard_app::{app_state::AppState, menu, sync_job, timer, tray};
+use cost_guard_app::{app_state::AppState, menu, settings, sync_job, timer, tray};
 use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(autostart_plugin())
+        .invoke_handler(tauri::generate_handler![
+            settings::settings_get,
+            settings::settings_set
+        ])
         .on_menu_event(menu::on_menu_event)
         .setup(|app| {
             #[cfg(target_os = "macos")]
@@ -33,4 +38,12 @@ fn main() {
                 api.prevent_exit();
             }
         });
+}
+
+/// Autostart plugin with a stable LaunchAgent name (PLAT-02).
+fn autostart_plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
+    let builder = tauri_plugin_autostart::Builder::new().app_name(settings::AUTOSTART_APP_NAME);
+    #[cfg(target_os = "macos")]
+    let builder = builder.macos_launcher(tauri_plugin_autostart::MacosLauncher::LaunchAgent);
+    builder.build()
 }

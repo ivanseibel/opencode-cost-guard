@@ -8,6 +8,7 @@ pub mod app_state;
 pub mod events;
 pub mod menu;
 pub mod runtime;
+pub mod settings;
 pub mod sync_job;
 pub mod timer;
 pub mod tray;

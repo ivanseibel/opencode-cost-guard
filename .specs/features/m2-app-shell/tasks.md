@@ -297,12 +297,12 @@ T12 → T13
 
 **Done when**:
 
-- [ ] DTO round-trips all config fields; unknown fields preserved by core save
-- [ ] `capabilities/default.json` gains `autostart:default`
-- [ ] Invalid values return `{ field, message }` and do not touch the file
-- [ ] Autostart toggle calls the plugin only outside dev builds; LaunchAgent app name is stable
-- [ ] Unit tests cover mapping and error mapping
-- [ ] Gate passes: quick gate command
+- [x] DTO round-trips all config fields; unknown fields preserved by core save
+- [x] `capabilities/default.json` gains `autostart:default`
+- [x] Invalid values return `{ field, message }` and do not touch the file
+- [x] Autostart toggle calls the plugin only outside dev builds; LaunchAgent app name is stable
+- [x] Unit tests cover mapping and error mapping
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
