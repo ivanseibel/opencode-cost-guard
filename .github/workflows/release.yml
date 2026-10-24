@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Build macOS app
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install pinned toolchain
+        run: rustup show
+
+      - name: Install tauri-cli 2.12.4
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/cargo-tauri.zip" \
+            "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.12.4/cargo-tauri-aarch64-apple-darwin.zip"
+          unzip -o "$RUNNER_TEMP/cargo-tauri.zip" -d "$HOME/.cargo/bin"
+          chmod +x "$HOME/.cargo/bin/cargo-tauri"
+          cargo tauri --version
+
+      - name: Build app bundle
+        run: cd crates/app && cargo tauri build --bundles app
+
+      - name: Ad-hoc sign the bundle
+        run: |
+          codesign --force --deep -s - "target/release/bundle/macos/Cost Guard.app"
+          codesign --verify --verbose=2 "target/release/bundle/macos/Cost Guard.app"
+
+      - name: Package and checksum
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          app="target/release/bundle/macos/Cost Guard.app"
+          test -d "$app"
+          zip="CostGuard-${TAG}-macos-arm64.zip"
+          ditto -c -k --keepParent "$app" "$zip"
+          test -f "$zip"
+          shasum -a 256 "$zip" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CostGuard-${{ github.ref_name }}-macos-arm64
+          path: |
+            CostGuard-${{ github.ref_name }}-macos-arm64.zip
+            SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Generate release notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          cat > release-notes.md <<EOF
+          OpenCode Cost Guard ${GITHUB_REF_NAME}
+          =====================================
+
+          Unsigned macOS build: this app is ad-hoc signed but **not notarized**.
+          Gatekeeper blocks the first launch until you clear the quarantine flag.
+          No Apple Developer ID is used for v0.1.0, so treat the download like any
+          other unsigned artifact and verify its checksum first.
+
+          Install
+          -------
+
+          1. Download CostGuard-${GITHUB_REF_NAME}-macos-arm64.zip and SHA256SUMS.txt
+             from this release.
+          2. Verify the archive before opening it:
+
+                 shasum -a 256 -c SHA256SUMS.txt
+
+          3. Unzip the archive and move "Cost Guard.app" to /Applications.
+          4. Clear the quarantine flag, or right-click the app and choose Open:
+
+                 xattr -dr com.apple.quarantine "/Applications/Cost Guard.app"
+
+          Requires macOS 10.13 or newer on Apple silicon. Full instructions:
+          https://github.com/ivanseibel/opencode-cost-guard/blob/main/docs/releasing.md
+
+          Checksums
+          ---------
+
+          SHA256SUMS.txt contains the SHA-256 of the zip. The workflow generates
+          both files from the same build; a mismatch means the download is corrupt
+          or was tampered with.
+
+          What changed
+          ------------
+
+          EOF
+          awk -v header="## ${version}" 'index($0, header) == 1 { inside = 1 } inside && /^## / && index($0, header) != 1 { exit } inside' CHANGELOG.md >> release-notes.md
+          cat release-notes.md
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "CostGuard-${GITHUB_REF_NAME}-macos-arm64.zip" \
+            "SHA256SUMS.txt" \
+            --title "OpenCode Cost Guard ${GITHUB_REF_NAME}" \
+            --notes-file release-notes.md

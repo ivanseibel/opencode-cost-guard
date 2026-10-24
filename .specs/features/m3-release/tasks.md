@@ -73,12 +73,12 @@ T1 → T2 → T3 → T4 → T5
 
 **Done when**:
 
-- [ ] Tag trigger `v*`; dispatch runs build-only without release creation
-- [ ] Steps: install tauri-cli 2.12.4, build bundle, ad-hoc codesign, zip `CostGuard-${tag}-macos-arm64.zip`, `shasum -a 256` → `SHA256SUMS.txt`, `gh release create` with notes file
-- [ ] Notes include the unsigned warning, install steps and checksum verification
-- [ ] Job permissions `contents: write` only
-- [ ] YAML parses (`python3`/`ruby` YAML)
-- [ ] Gate passes: build gate command
+- [x] Tag trigger `v*`; dispatch runs build-only without release creation
+- [x] Steps: install tauri-cli 2.12.4, build bundle, ad-hoc codesign, zip `CostGuard-${tag}-macos-arm64.zip`, `shasum -a 256` → `SHA256SUMS.txt`, `gh release create` with notes file
+- [x] Notes include the unsigned warning, install steps and checksum verification
+- [x] Job permissions `contents: write` only
+- [x] YAML parses (`python3`/`ruby` YAML)
+- [x] Gate passes: build gate command
 
 **Tests**: none (workflow; guard covers invariants in T4)
 **Gate**: build
