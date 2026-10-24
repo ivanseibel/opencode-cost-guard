@@ -111,7 +111,9 @@ To open the app, right-click it in Finder and choose **Open**, then confirm. To 
 xattr -dr com.apple.quarantine "/Applications/Cost Guard.app"
 ```
 
-For a locally built bundle the path is `target/release/bundle/macos/Cost Guard.app`. Only clear quarantine on a build you obtained from this repository's releases or built yourself.
+For a locally built bundle the path is `target/release/bundle/macos/Cost Guard.app`. Only clear quarantine on a build you obtained from this repository's releases or built yourself, after verifying it against the attached `SHA256SUMS.txt`.
+
+The [release and install guide](docs/releasing.md) covers the full download steps, checksum verification with `shasum -a 256 -c`, the Gatekeeper workaround and the approval-gated release procedure.
 
 ## Privacy and security
 
@@ -128,6 +130,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Overlay data updates are the easiest ent
 
 - [Product brief](docs/brief.md)
 - [MVP scope and acceptance criteria](docs/mvp.md)
+- [Release and install guide](docs/releasing.md)
 - [Backlog](docs/backlog.md)
 - [Architecture decisions](docs/adr/)
 - [Glossary](CONTEXT.md)

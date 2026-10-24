@@ -173,6 +173,12 @@ Defines tiers, flags, context size, and per-profile capability scores.
 
 `data/bundled/opencode-go.json` mirrors the `opencode-go` provider from `https://models.opencode.ai/api.json`. Maintainers refresh it from the live mirror and record `source`, `etag`, and `fetched_at`. Do not hand-edit model prices in the snapshot to work around a stale upstream value; use an Overlay entry with a citation instead.
 
+## Releases
+
+Release and install instructions live in [docs/releasing.md](docs/releasing.md). v0.1.0 ships as an ad-hoc-signed, non-notarized `.app` zip, so the guide documents checksum verification and the Gatekeeper workaround.
+
+Publishing is approval-gated. Run the local packaging dry-run, get explicit approval, then create and push the `v*` tag. The tag push triggers `.github/workflows/release.yml`, which builds, ad-hoc signs, zips, writes `SHA256SUMS.txt` and publishes the GitHub Release. Do not create a release by hand. A manual `workflow_dispatch` run builds artifacts without publishing.
+
 ## Issues and pull requests
 
 - Use the issue templates for bug reports and feature requests.

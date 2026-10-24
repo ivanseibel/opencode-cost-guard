@@ -96,11 +96,11 @@ T1 → T2 → T3 → T4 → T5
 
 **Done when**:
 
-- [ ] Docs include `xattr -dr com.apple.quarantine` and state the build is unsigned/not notarized
-- [ ] Checksum verification instructions use `SHA256SUMS.txt`
-- [ ] Release procedure states: local dry-run → approval → tag → push tag → workflow publishes
-- [ ] README links install/release docs; CONTRIBUTING links releasing guide
-- [ ] Gate passes: build gate command
+- [x] Docs include `xattr -dr com.apple.quarantine` and state the build is unsigned/not notarized
+- [x] Checksum verification instructions use `SHA256SUMS.txt`
+- [x] Release procedure states: local dry-run → approval → tag → push tag → workflow publishes
+- [x] README links install/release docs; CONTRIBUTING links releasing guide
+- [x] Gate passes: build gate command
 
 **Tests**: none (docs; guard covers required strings)
 **Gate**: build
