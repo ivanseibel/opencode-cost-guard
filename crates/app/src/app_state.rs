@@ -325,7 +325,7 @@ mod tests {
         assert!(error.contains("bundled overlays"), "{error}");
 
         let presentation = crate::menu::present(&state, false, instant("2026-10-26T02:00:00Z"));
-        assert_eq!(presentation.title, "🟢 DS off");
+        assert_eq!(presentation.title, "🟢 off");
         assert_eq!(
             presentation.prices,
             vec!["DeepSeek V4.1 Flash is not in the current catalog"]

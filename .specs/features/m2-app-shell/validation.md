@@ -323,3 +323,9 @@ the real call site, and reload `settings_get` when the hidden window is re-shown
 
 **Next steps**: ship M2; optionally schedule the two minor follow-ups for the
 next app-shell touch. No fix→re-verify iteration is required.
+
+---
+
+## Post-validation amendment (2026-10-24)
+
+The tray item disappeared at runtime while the process stayed alive (no crash): suspected menu-bar overflow after Snipaste added an item, or tauri#12060. The tray title is now `🟢 off` / `🔴 2×` (the menu header keeps the full `🟢 DS off` / `🔴 DS 2×`), and a 30 s watchdog re-asserts the status item when `TrayIcon::rect()` is missing, zero-sized or off-screen. The re-assert predicate is unit-tested. Historical ACs above remain as recorded.

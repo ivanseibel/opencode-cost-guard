@@ -55,7 +55,7 @@ The core crate is complete and verified, but nothing runs yet: no menu-bar app, 
 1. APP-01 WHEN the workspace builds on macOS THEN `crates/app` SHALL compile and `cargo tauri build` SHALL produce a `.app` bundle.
 2. APP-02 The settings UI SHALL be served from a static `frontendDist` folder with no Node toolchain in the build.
 3. APP-03 IF startup fails to load overlays or snapshots THEN the app SHALL stay running and show an error item in the menu instead of crashing.
-4. TRAY-01 WHEN DeepSeek is off-peak THEN the tray title SHALL read `🟢 DS off`; WHEN peak THEN `🔴 DS 2×`.
+4. TRAY-01 WHEN DeepSeek is off-peak THEN the tray title SHALL read `🟢 off`; WHEN peak THEN `🔴 2×`; the menu header SHALL show the full `🟢 DS off` / `🔴 DS 2×` label.
 5. TRAY-02 WHILE a Catalog Change is unacknowledged THEN the tray title SHALL append ` ⚠`.
 6. TRAY-03 The app SHALL update the tray title only when the state or badge value changes, never on every timer tick.
 7. TRAY-04 IF runtime title updates hide the tray on the current macOS/Tauri combination THEN the app SHALL fall back to a colored icon with tooltip text and SHALL log the fallback once.

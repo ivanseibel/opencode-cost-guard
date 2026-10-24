@@ -10,17 +10,25 @@ use cost_guard_core::overlay::Warning;
 use cost_guard_core::recommend::Recommendation;
 use cost_guard_core::sync::ActiveSource;
 
-/// Tray title for the current DeepSeek window, with the change badge suffix.
+/// Short tray title for the current DeepSeek window, with the change badge suffix.
+///
+/// Kept deliberately compact (icon + two words) so the status item survives a
+/// crowded menu bar; the menu header carries the full label via [`state_label`].
 pub fn tray_title(peak: bool, badge: bool) -> String {
     let mut title = if peak {
-        "🔴 DS 2×".to_string()
+        "🔴 2×".to_string()
     } else {
-        "🟢 DS off".to_string()
+        "🟢 off".to_string()
     };
     if badge {
         title.push_str(" ⚠");
     }
     title
+}
+
+/// Full state label used in the menu header.
+pub fn state_label(peak: bool) -> &'static str {
+    if peak { "🔴 DS 2×" } else { "🟢 DS off" }
 }
 
 /// Header and price lines for one model at the current window.
@@ -199,10 +207,16 @@ mod tests {
 
     #[test]
     fn tray_title_matches_the_spec_exactly() {
-        assert_eq!(tray_title(false, false), "🟢 DS off");
-        assert_eq!(tray_title(true, false), "🔴 DS 2×");
-        assert_eq!(tray_title(false, true), "🟢 DS off ⚠");
-        assert_eq!(tray_title(true, true), "🔴 DS 2× ⚠");
+        assert_eq!(tray_title(false, false), "🟢 off");
+        assert_eq!(tray_title(true, false), "🔴 2×");
+        assert_eq!(tray_title(false, true), "🟢 off ⚠");
+        assert_eq!(tray_title(true, true), "🔴 2× ⚠");
+    }
+
+    #[test]
+    fn menu_state_label_keeps_the_model_name() {
+        assert_eq!(state_label(false), "🟢 DS off");
+        assert_eq!(state_label(true), "🔴 DS 2×");
     }
 
     #[test]

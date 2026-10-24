@@ -114,6 +114,38 @@ pub fn request_refresh(app: &AppHandle) {
     }
 }
 
+/// Re-assert the status item when macOS hid it (menu-bar overflow) or when a
+/// title update removed it (tauri#12060). Cheap: runs on the 30 s tick.
+pub fn ensure_visible(app: &AppHandle) {
+    let Some(tray) = app.tray_by_id(TRAY_ID) else {
+        return;
+    };
+    let Ok(rect) = tray.rect() else {
+        return;
+    };
+    if !needs_reassert(rect) {
+        return;
+    }
+    match tray
+        .set_visible(false)
+        .and_then(|()| tray.set_visible(true))
+    {
+        Ok(()) => eprintln!("cost-guard: tray was hidden or zero-sized; re-asserted visibility"),
+        Err(error) => eprintln!("cost-guard: failed to re-assert tray visibility: {error}"),
+    }
+}
+
+/// Whether the tray rectangle proves the status item is missing or collapsed.
+fn needs_reassert(rect: Option<tauri::Rect>) -> bool {
+    match rect {
+        None => true,
+        Some(rect) => match rect.size {
+            tauri::Size::Physical(size) => size.width == 0 || size.height == 0,
+            tauri::Size::Logical(size) => size.width == 0.0 || size.height == 0.0,
+        },
+    }
+}
+
 fn try_refresh(app: &AppHandle) -> tauri::Result<()> {
     let presentation = current_presentation(app);
     if load(app).as_ref() == Some(&presentation) {
@@ -216,9 +248,28 @@ mod tests {
 
     #[test]
     fn title_changes_only_when_the_string_differs() {
-        assert!(title_changed(None, "🟢 DS off"));
-        assert!(!title_changed(Some("🟢 DS off"), "🟢 DS off"));
-        assert!(title_changed(Some("🟢 DS off"), "🔴 DS 2×"));
-        assert!(!title_changed(Some("🟢 DS off ⚠"), "🟢 DS off ⚠"));
+        assert!(title_changed(None, "🟢 off"));
+        assert!(!title_changed(Some("🟢 off"), "🟢 off"));
+        assert!(title_changed(Some("🟢 off"), "🔴 2×"));
+        assert!(!title_changed(Some("🟢 off ⚠"), "🟢 off ⚠"));
+    }
+
+    fn rect(width: u32, height: u32) -> tauri::Rect {
+        tauri::Rect {
+            position: tauri::Position::Physical(tauri::PhysicalPosition::new(0, 0)),
+            size: tauri::Size::Physical(tauri::PhysicalSize::new(width, height)),
+        }
+    }
+
+    #[test]
+    fn missing_or_zero_sized_tray_rect_needs_reassert() {
+        assert!(needs_reassert(None));
+        assert!(needs_reassert(Some(rect(0, 22))));
+        assert!(needs_reassert(Some(rect(20, 0))));
+    }
+
+    #[test]
+    fn visible_tray_rect_is_left_alone() {
+        assert!(!needs_reassert(Some(rect(80, 22))));
     }
 }

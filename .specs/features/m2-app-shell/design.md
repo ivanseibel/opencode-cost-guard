@@ -75,7 +75,8 @@ crates/app/
 - **Purpose**: Exact strings for tray and menu; no Tauri types.
 - **Location**: `crates/app/src/ui_model.rs`
 - **Interfaces**:
-  - `tray_title(peak: bool, badge: bool) -> String` → `🟢 DS off`, `🔴 DS 2×`, suffix ` ⚠`
+  - `tray_title(peak: bool, badge: bool) -> String` → `🟢 off`, `🔴 2×`, suffix ` ⚠`
+  - `state_label(peak: bool) -> &'static str` → full `🟢 DS off` / `🔴 DS 2×` for the menu header
   - `price_lines(model, state, multiplier)`; `next_transition_line(utc, local)`
   - `recommendation_lines(&Recommendation)`; `source_line(ActiveSource, last_sync)`
 - **Tests**: exact strings for peak/off-peak, badge, peak-aware prices, no-candidate reason, fallback source.

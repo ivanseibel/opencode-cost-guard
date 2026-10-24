@@ -100,6 +100,7 @@ fn tick(app: &AppHandle, now: DateTime<Utc>, tracker: &mut TransitionTracker) {
         sync_job::spawn(app);
     }
     tray::request_refresh(app);
+    tray::ensure_visible(app);
 }
 
 struct Tick {

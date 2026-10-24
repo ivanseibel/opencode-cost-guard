@@ -88,7 +88,7 @@ pub fn present(state: &AppState, syncing: bool, now: DateTime<Utc>) -> Presentat
 
     Presentation {
         title: ui_model::tray_title(peak, state.badge),
-        state: ui_model::tray_title(peak, false),
+        state: ui_model::state_label(peak).to_string(),
         transition: ui_model::next_transition_line(next, local),
         peak,
         prices,

@@ -48,7 +48,7 @@ Core question:
 | 10 | Security boundary: no OpenCode internals/credentials in v0.1; integration is Phase 3 work | [ADR-0004](./adr/0004-no-opencode-internals-in-v01.md) |
 | 11 | OSS: dual MIT/Apache-2.0, DCO, CI (fmt/clippy/test on macOS + Ubuntu), unsigned GitHub Releases, non-affiliation disclaimer | [backlog.md](./backlog.md) M0 |
 | 12 | UI and docs language: English | — |
-| 13 | Tray shows peak status only (`🟢 DS off` / `🔴 DS 2×`) + `⚠`; Recommendation lives in the menu/tooltip | [mvp.md](./mvp.md) |
+| 13 | Tray shows peak status only (`🟢 off` / `🔴 2×`) + `⚠`; full label in the menu, recommendation in menu/tooltip | [mvp.md](./mvp.md) |
 
 ## 5. Facts that corrected the original brief
 

@@ -5,7 +5,7 @@ Agreed 2026-10-23. Scope is deliberately small. Everything here is v0.1 unless m
 ## Must
 
 1. **Menu-bar tray**
-   - Title: `🟢 DS off` / `🔴 DS 2×` (DeepSeek Pricing Window state) + `⚠` appended while a Catalog Change is unacknowledged.
+   - Title: `🟢 off` / `🔴 2×` (DeepSeek Pricing Window state) + `⚠` appended while a Catalog Change is unacknowledged; the menu header shows the full `🟢 DS off` / `🔴 DS 2×` label.
    - Title updates only on state transitions (mitigates tauri#12060). No styling API — text/emoji only.
 2. **Menu**
    - DeepSeek state + next Pricing Window transition (local time; UTC shown in parentheses);

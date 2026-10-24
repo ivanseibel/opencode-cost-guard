@@ -136,7 +136,7 @@ T12 → T13
 
 **Done when**:
 
-- [x] `tray_title` returns exactly `🟢 DS off` / `🔴 DS 2×` with ` ⚠` suffix when badge is set
+- [x] `tray_title` returns exactly `🟢 off` / `🔴 2×` with ` ⚠` suffix when badge is set; menu header keeps `🟢 DS off` / `🔴 DS 2×`
 - [x] Price lines use peak-aware effective prices (2× off-peak during DeepSeek peak)
 - [x] Recommendation lines include pick + reasons; alternatives render up to 3; no-candidate shows failing filter
 - [x] Unit tests assert exact strings for both windows, badge on/off, fallback source
