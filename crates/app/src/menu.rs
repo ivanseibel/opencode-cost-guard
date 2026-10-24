@@ -116,6 +116,29 @@ pub fn profile_label(profile: TaskProfile) -> &'static str {
     }
 }
 
+/// Check and visibility state of the menu items built from a presentation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ActionState {
+    /// One entry per Task Profile, in `TaskProfile::ALL` order (MENU-02).
+    pub profile_checks: Vec<(TaskProfile, bool)>,
+    /// Sync Catalog is enabled unless a sync is in flight (MENU-05).
+    pub sync_enabled: bool,
+    /// Acknowledge changes is visible only while the badge is set (SYNCA-02).
+    pub acknowledge_visible: bool,
+}
+
+/// Project profile checks and action-item state from a presentation.
+pub fn action_state(presentation: &Presentation) -> ActionState {
+    ActionState {
+        profile_checks: TaskProfile::ALL
+            .into_iter()
+            .map(|profile| (profile, profile == presentation.profile))
+            .collect(),
+        sync_enabled: !presentation.syncing,
+        acknowledge_visible: presentation.badge,
+    }
+}
+
 /// Build the complete native menu for one presentation.
 pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu<Wry>> {
     #[cfg(debug_assertions)]
@@ -157,15 +180,17 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
         .map(|(index, text)| label(app, &format!("view:price:{index}"), text))
         .collect::<tauri::Result<Vec<_>>>()?;
 
-    let profile_items = TaskProfile::ALL
-        .into_iter()
-        .map(|profile| {
+    let actions = action_state(presentation);
+    let profile_items = actions
+        .profile_checks
+        .iter()
+        .map(|(profile, checked)| {
             CheckMenuItem::with_id(
                 app,
                 format!("{PROFILE_PREFIX}{}", profile.as_str()),
-                profile_label(profile),
+                profile_label(*profile),
                 true,
-                profile == presentation.profile,
+                *checked,
                 None::<&str>,
             )
         })
@@ -194,7 +219,7 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
         .collect();
     let alternatives = Submenu::with_items(app, "Alternatives", true, &alternative_refs)?;
 
-    let acknowledge_item = if presentation.badge {
+    let acknowledge_item = if actions.acknowledge_visible {
         Some(MenuItem::with_id(
             app,
             ID_ACKNOWLEDGE,
@@ -214,7 +239,7 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
         app,
         ID_SYNC,
         "Sync Catalog",
-        !presentation.syncing,
+        actions.sync_enabled,
         None::<&str>,
     )?;
     let settings_item = MenuItem::with_id(app, ID_SETTINGS, "Settings…", true, None::<&str>)?;
@@ -301,6 +326,32 @@ fn switch_profile(app: &AppHandle, value: &str) {
     tray::refresh(app);
 }
 
+#[cfg(debug_assertions)]
+const RENDER_PROBE: &str = r#"
+setTimeout(() => {
+  const ids = ["autostart", "peak-enter", "peak-exit", "default-profile", "sync-interval", "ignored-models"];
+  const fields = ids.map((id) => {
+    const el = document.getElementById(id);
+    let value = el
+      ? (el.type === "checkbox" ? String(el.checked) : el.value)
+      : null;
+    return [id, !!el, el ? el.offsetWidth : 0, el ? el.offsetHeight : 0, value];
+  });
+  const h1 = document.querySelector("h1");
+  const report = {
+    readyState: document.readyState,
+    visibility: document.visibilityState,
+    hasFocus: document.hasFocus(),
+    viewport: [window.innerWidth, window.innerHeight, window.devicePixelRatio],
+    h1: h1 ? h1.textContent : null,
+    fields,
+    text: document.body.innerText.replace(/\s+/g, " ").slice(0, 300),
+  };
+  window.__TAURI__.core.invoke("settings_probe", { report: JSON.stringify(report) })
+    .catch((error) => console.error("probe failed", error));
+}, 800);
+"#;
+
 pub fn show_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window(SETTINGS_LABEL) {
         if let Err(error) = window.show() {
@@ -318,6 +369,10 @@ pub fn show_settings(app: &AppHandle) {
     {
         Ok(window) => {
             let _ = window.set_focus();
+            #[cfg(debug_assertions)]
+            if std::env::var_os("COST_GUARD_PROBE_SETTINGS").is_some() {
+                let _ = window.eval(RENDER_PROBE);
+            }
         }
         Err(error) => eprintln!("cost-guard: failed to open settings: {error}"),
     }
@@ -364,5 +419,57 @@ mod tests {
             presentation.state, "🔴 DS 2×",
             "peak math still works without the holiday calendar"
         );
+    }
+
+    #[test]
+    fn action_state_exposes_five_profile_checks_with_the_active_one_checked() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let mut state = AppState::load(dir.path().to_path_buf());
+        state.config.default_profile = TaskProfile::LargeRefactor;
+
+        let actions = action_state(&present(&state, false, instant()));
+
+        assert_eq!(actions.profile_checks.len(), TaskProfile::ALL.len());
+        let checked: Vec<TaskProfile> = actions
+            .profile_checks
+            .iter()
+            .filter(|(_, is_checked)| *is_checked)
+            .map(|(profile, _)| *profile)
+            .collect();
+        assert_eq!(checked, vec![TaskProfile::LargeRefactor]);
+        assert_eq!(
+            actions
+                .profile_checks
+                .iter()
+                .map(|(profile, _)| profile_label(*profile))
+                .collect::<Vec<_>>(),
+            vec![
+                "Simple Coding",
+                "Complex Coding",
+                "Visual UI",
+                "Agentic Tools",
+                "Large Refactor",
+            ]
+        );
+    }
+
+    #[test]
+    fn sync_item_is_disabled_while_a_sync_is_in_flight() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let state = AppState::load(dir.path().to_path_buf());
+
+        assert!(action_state(&present(&state, false, instant())).sync_enabled);
+        assert!(!action_state(&present(&state, true, instant())).sync_enabled);
+    }
+
+    #[test]
+    fn acknowledge_item_is_visible_only_with_the_badge() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let mut state = AppState::load(dir.path().to_path_buf());
+
+        assert!(!action_state(&present(&state, false, instant())).acknowledge_visible);
+
+        state.badge = true;
+        assert!(action_state(&present(&state, false, instant())).acknowledge_visible);
     }
 }

@@ -1,0 +1,90 @@
+# GUI driver probe during the locked session
+
+## orca computer permissions --json
+{
+  "id": "3ceb9196-0c71-4606-b704-618962185b41",
+  "ok": true,
+  "result": {
+    "platform": "darwin",
+    "helperAppPath": "/Applications/Orca.app/Contents/Resources/Orca Computer Use.app",
+    "permissionId": "accessibility",
+    "openedSettings": true,
+    "launchedHelper": true,
+    "permissions": [
+      {
+        "id": "accessibility",
+        "status": "granted"
+      },
+      {
+        "id": "screenshots",
+        "status": "granted"
+      }
+    ],
+    "nextStep": null
+  },
+  "_meta": {
+    "runtimeId": "59330719-deee-40fc-8155-bcf86ee99ac4"
+  }
+}
+
+## orca computer get-app-state --app pid:43140 --json
+{
+  "id": "7d3c4db1-d7c8-4235-8fea-4e2db4581870",
+  "ok": false,
+  "error": {
+    "code": "permission_denied",
+    "message": "Accessibility permission is required for Orca Computer Use. Run `orca computer permissions` or open Settings > Computer Use, grant Accessibility to Orca Computer Use, then retry.",
+    "data": {
+      "nextSteps": [
+        "Run `orca computer permissions --json`, or `orca computer permissions --id accessibility --json` / `--id screenshots --json` when the message names one missing permission.",
+        "For remote or SSH targets, verify the command is running inside an active graphical desktop session."
+      ]
+    }
+  },
+  "_meta": {
+    "runtimeId": "59330719-deee-40fc-8155-bcf86ee99ac4"
+  }
+}
+
+## orca computer list-windows --app pid:43140 --json
+{
+  "id": "64fa208c-b562-46a8-a624-289f7e0dcf6e",
+  "ok": true,
+  "result": {
+    "app": {
+      "pid": 43140,
+      "isRunning": true,
+      "lastUsedAt": null,
+      "bundleId": "dev.ivanseibel.costguard",
+      "useCount": null,
+      "name": "Cost Guard"
+    },
+    "windows": [
+      {
+        "isOffscreen": false,
+        "x": 496,
+        "screenIndex": 0,
+        "id": 5093,
+        "title": "Cost Guard Settings",
+        "width": 520,
+        "index": 0,
+        "app": {
+          "bundleId": "dev.ivanseibel.costguard",
+          "pid": 43140,
+          "name": "Cost Guard"
+        },
+        "y": 166,
+        "platform": {
+          "layer": 0,
+          "alpha": 1
+        },
+        "isMinimized": false,
+        "height": 420,
+        "isMain": null
+      }
+    ]
+  },
+  "_meta": {
+    "runtimeId": "59330719-deee-40fc-8155-bcf86ee99ac4"
+  }
+}

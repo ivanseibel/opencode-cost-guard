@@ -1,0 +1,6 @@
+# startup sync with a fresh snapshot (SYNCA-01)
+command: COST_GUARD_OPEN_SETTINGS=1 COST_GUARD_PROBE_SETTINGS=1 ./target/debug/cost-guard-app
+snapshot age at launch: last sync 2026-10-24 04:05 UTC, sync interval 6 h
+
+cost-guard: sync started
+cost-guard: sync not modified

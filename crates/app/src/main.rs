@@ -9,7 +9,9 @@ fn main() {
         .plugin(autostart_plugin())
         .invoke_handler(tauri::generate_handler![
             settings::settings_get,
-            settings::settings_set
+            settings::settings_set,
+            #[cfg(debug_assertions)]
+            settings::settings_probe
         ])
         .on_menu_event(menu::on_menu_event)
         .on_window_event(|window, event| {

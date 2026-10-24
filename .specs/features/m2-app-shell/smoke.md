@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-24
 **Machine**: macOS 26.6.2 (25G83), arm64, Rust 1.97.1, tauri-cli 2.12.4
-**Bundle**: `target/release/bundle/macos/Cost Guard.app` (14.94 MiB, ad-hoc signed)
+**Bundle**: `target/release/bundle/macos/Cost Guard.app` (15.18 MiB, ad-hoc signed)
 **Evidence directory**: `.specs/features/m2-app-shell/evidence/`
 
 Status values: **PASS** (observed), **PARTIAL** (core behavior observed through a
@@ -17,10 +17,17 @@ never moves). Full-display `screencapture` returns only the wallpaper, while
 per-window `screencapture -l` works. Exact probes and errors:
 `evidence/gui-permission-blocked.txt`.
 
+The second limitation is the **locked session**: `CGSSessionScreenIsLocked=1`
+(`evidence/session-lock.txt`), and `CGWindowList` lists `loginwindow` above every
+app window. The settings webview builds a complete DOM, but WebKit keeps
+`document.visibilityState="hidden"` and never paints while the screen is locked,
+so window captures show only the title bar. `orca computer get-app-state` also
+returns `permission_denied` in this state (`evidence/gui-driver-locked.txt`).
+
 Consequences: opening the native tray menu, clicking Settings, editing fields,
 closing the window and clicking Quit could not be driven. Checks that depend on
 those clicks are marked PARTIAL/BLOCKED and list the compensating evidence
-(runtime logs, window probes, unit tests).
+(runtime logs, DOM probes, unit tests).
 
 ## Checks
 
@@ -30,11 +37,11 @@ those clicks are marked PARTIAL/BLOCKED and list the compensating evidence
 | 2 | No Dock icon / Cmd-Tab entry | PLAT-01 | PASS | `bundle-info.txt` |
 | 3 | Tray visible with correct title | TRAY-01 | PASS | `tray-title.png`, `tray-probe.txt` |
 | 4 | Badge suffix ` ⚠` | TRAY-02 | PARTIAL | unit tests; live badge blocked (menu) |
-| 5 | Menu contents | MENU-01..06 | PARTIAL | `menu-built.log`; native open blocked |
+| 5 | Menu contents | MENU-01..06 | PARTIAL | `menu-built.log`, `action_state` unit tests; native open blocked |
 | 6 | Peak notifications, one per transition | NOTIF-01..03 | PASS | `fake-clock-peak-enter.log`, `fake-clock-peak-exit.log` |
-| 7 | Settings window + persistence | SET-01..03 | PARTIAL | `settings-probe.txt`, `settings-window.png`, `settings-window-run.log` |
+| 7 | Settings window + persistence | SET-01..03 | PARTIAL | `settings-render-probe.log` (complete DOM, prefilled), `settings-window-locked.png` (paint blocked by lock) |
 | 8 | Autostart LaunchAgent | PLAT-02 | PARTIAL | `autostart-launchagent.log`; UI toggle blocked |
-| 9 | Sync online/offline + source | SYNCA-01..04 | PASS | `sync-online.log`, `sync-online-release.log`, `sync-offline-*.log` |
+| 9 | Sync at startup/online/offline + source | SYNCA-01..04 | PASS | `sync-startup.log`, `sync-online.log`, `sync-online-release.log`, `sync-offline-*.log` |
 | 10 | Badge acknowledge | SYNCA-02 | BLOCKED | menu click blocked; `app_state`/`sync_job` unit tests |
 | 11 | Close hides, Quit exits | SET-03 | BLOCKED | code path only; no input |
 | 12 | No OpenCode internals / credentials | SEC-01 | PASS | code inspection + core purity gate |
@@ -49,9 +56,10 @@ cargo tauri build --bundles app
 open -n "target/release/bundle/macos/Cost Guard.app"
 ```
 
-Built at `target/release/bundle/macos/Cost Guard.app` (14.94 MiB, ad-hoc
-signed). Launch Services reports `CFBundleIdentifier="dev.ivanseibel.costguard"`
-and `ApplicationType="UIElement"`; the process stayed alive. Full probe output:
+Built at `target/release/bundle/macos/Cost Guard.app` (15.18 MiB, ad-hoc
+signed, rebuilt after the Fix 1-7 loop). Launch Services reports
+`CFBundleIdentifier="dev.ivanseibel.costguard"` and
+`ApplicationType="UIElement"`; the process stayed alive. Full probe output:
 `evidence/bundle-info.txt`.
 
 ### 2. No Dock icon / Cmd-Tab entry — PASS
@@ -72,9 +80,11 @@ TRAY-01 exactly (`🟢 DS off`).
 ### 4. Badge suffix — PARTIAL
 
 The title builder appends ` ⚠` and unit tests assert both badge states
-(`ui_model::tests::tray_title_matches_the_spec_exactly`). Producing a live badge
-requires a catalog change plus opening the menu, which needs GUI input; blocked
-by the environment above.
+(`ui_model::tests::tray_title_matches_the_spec_exactly`). The menu seam now also
+asserts that Acknowledge is visible only with the badge
+(`menu::tests::acknowledge_item_is_visible_only_with_the_badge`). Producing a
+live badge requires a catalog change plus opening the menu, which needs GUI
+input; blocked by the environment above.
 
 ### 5. Menu contents — PARTIAL
 
@@ -83,6 +93,7 @@ synthesize. The debug build logs the exact presentation that `menu::build`
 renders on every rebuild (`evidence/menu-built.log`), including:
 
 - state `🟢 DS off`, next transition in local time + UTC;
+- overlay warning lines from `Overlays::validate` (none with bundled data);
 - DeepSeek V4.1 Flash prices (input/output/cache read), off-peak and 2× peak;
 - active profile `visual-ui` with the five check items built from
   `TaskProfile::ALL`;
@@ -91,8 +102,12 @@ renders on every rebuild (`evidence/menu-built.log`), including:
 - `syncing` flag (Sync Catalog disabled while true) and `badge` flag
   (Acknowledge item only when true).
 
-The exact strings are also asserted by the T3 unit tests
-(`ui_model::tests`). Native rendering itself was not observed.
+`menu::action_state` is now a pure seam with tests for all five profile check
+states (`action_state_exposes_five_profile_checks_with_the_active_one_checked`),
+Sync enabled = `!syncing` (`sync_item_is_disabled_while_a_sync_is_in_flight`)
+and Acknowledge visibility (`acknowledge_item_is_visible_only_with_the_badge`).
+The exact strings are also asserted by the T3 unit tests (`ui_model::tests`).
+Native rendering itself was not observed.
 
 ### 6. Peak notifications — PASS
 
@@ -115,12 +130,32 @@ startup did not notify.
 
 Window probe (`COST_GUARD_OPEN_SETTINGS=1`, debug-only fixture) created
 `Cost Guard Settings` at exactly 520×420 pt; the webview loaded and invoked the
-backend: `settings_get served profile=visual-ui intervalHours=1 autostart=false
-ignoredModels=1`, read from a `config.json` written before the launch
-(`evidence/settings-probe.txt`, `evidence/settings-window-run.log`,
-`evidence/settings-window.png`). That proves the settings page is served from
-`frontendDist`, the capability allows the invoke, and persisted values survive a
-restart.
+backend: `settings_get served profile=simple-coding intervalHours=6
+autostart=false ignoredModels=0`, read from the persisted `config.json`
+(`evidence/settings-probe.txt`, `evidence/settings-window-run.log`).
+
+The blank `settings-window.png` was investigated: the page is **not** blank.
+`COST_GUARD_PROBE_SETTINGS=1` evaluates a debug-only DOM probe after 800 ms and
+logs (`evidence/settings-render-probe.log`):
+
+```
+readyState=complete visibility=hidden hasFocus=false viewport=[520,388,2]
+h1=Settings
+autostart: present 38x22 "false"
+peak-enter: present 15x15 "true"
+peak-exit: present 15x15 "true"
+default-profile: present 130x21 "simple-coding"
+sync-interval: present 86x29 "6"
+ignored-models: present 458x48 ""
+body text: "Settings Launch at login ... Notifications Peak pricing starts ..."
+```
+
+So all six controls exist, have non-zero layout and carry the persisted values.
+`visibility=hidden` is caused by the locked macOS session, not by the page:
+WebKit does not paint a hidden page, which is why
+`evidence/settings-window-locked.png` still shows only the title bar. The DOM
+probe is the compensating evidence for the "show" leg; a painted screenshot
+remains BLOCKED until an unlocked host runs the app.
 
 Saving/validation is covered by the same code path used by the command:
 
@@ -154,6 +189,17 @@ and `is_enabled()` returned to `false`
 Toggling it through the Settings UI is BLOCKED by the GUI limitation above.
 
 ### 9. Sync online/offline and source reporting — PASS
+
+Startup now syncs unconditionally (SYNCA-01). Launch with a snapshot fetched at
+`2026-10-24 04:05 UTC` and a 6 h interval still logs:
+
+```
+cost-guard: sync started
+cost-guard: sync not modified
+```
+
+`evidence/sync-startup.log`. The periodic gate is unchanged and remains
+unit-tested (`timer::tests` including `startup_syncs_even_with_a_fresh_snapshot`).
 
 Online (release bundle, stale snapshot to force a due sync):
 
@@ -198,6 +244,20 @@ The app reads only its own `config.json` and catalog snapshots; there is no code
 path for OpenCode files, databases, CLI output or credentials. The core purity
 gate stays green (`bash scripts/check-core-purity.sh`).
 
+### 13. Fix-loop regressions (Fixes 1-6) — PARTIAL
+
+Each item was added by the post-validation fix loop; none changes the GUI
+observation limits above.
+
+| Fix | Behavior | Status | Evidence |
+| --- | -------- | ------ | -------- |
+| 1 | Unconditional startup sync | PASS | `sync-startup.log`; `timer::tests::startup_syncs_even_with_a_fresh_snapshot` |
+| 2 | Holiday-coverage warning in the menu | PARTIAL | `menu::tests::holiday_coverage_gap_is_surfaced_in_the_presentation` asserts the exact `Warning: holiday calendar does not cover 2026` line; native menu unobserved |
+| 3 | Fake-clock parser protection | PASS | `clock::tests` (valid, offset, invalid, empty, elapsed) |
+| 4 | Startup survives bundled-data failure | PARTIAL | `app_state::tests` inject a failing loader and assert the error string plus a degraded presentation; no corrupt-bundle smoke run |
+| 5 | Peak-aware fallback icons | PARTIAL | `tray::tests` assert green/red selection and 32×32 PNG decoding; a real `set_title` failure is not reproducible here |
+| 6 | Title writes only on title change | PARTIAL | `tray::tests::title_changes_only_when_the_string_differs`; live tick writes unobserved |
+
 ## Build and test gate
 
 ```sh
@@ -209,13 +269,16 @@ bash scripts/check-core-purity.sh
 cd crates/app && cargo tauri build --bundles app
 ```
 
-All green: 138 workspace tests (47 app unit tests, 87 core unit tests, 4 core
+All green: 155 workspace tests (64 app unit tests, 87 core unit tests, 4 core
 integration tests), clippy with `-D warnings`, and the release bundle above.
 
 ## Notes and cleanup
 
 - The debug-only fixtures are `COST_GUARD_FAKE_NOW` (anchored RFC 3339 instant,
-  advances with real elapsed time) and `COST_GUARD_OPEN_SETTINGS=1` (opens the
-  settings window without a tray click); both are compiled out of release builds.
+  advances with real elapsed time), `COST_GUARD_OPEN_SETTINGS=1` (opens the
+  settings window without a tray click) and `COST_GUARD_PROBE_SETTINGS=1`
+  (evaluates the DOM probe that backs the settings evidence). All three are
+  compiled out of release builds.
 - The app data directory was backed up before the smoke run and restored
-  afterwards; no config file or LaunchAgent was left behind.
+  afterwards; no config file or LaunchAgent was left behind. The fix-loop run
+  updated only the catalog snapshot through the normal sync path.

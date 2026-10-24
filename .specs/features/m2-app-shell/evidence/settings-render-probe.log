@@ -1,0 +1,6 @@
+# settings DOM render probe (webview content exists; session is locked so nothing paints)
+command: COST_GUARD_OPEN_SETTINGS=1 COST_GUARD_PROBE_SETTINGS=1 ./target/debug/cost-guard-app
+window: id=5079 520x420 pt
+
+cost-guard: settings_get served profile=simple-coding intervalHours=6 autostart=false ignoredModels=0
+cost-guard: settings render probe: {"readyState":"complete","visibility":"hidden","hasFocus":false,"viewport":[520,388,2],"h1":"Settings","fields":[["autostart",true,38,22,"false"],["peak-enter",true,15,15,"true"],["peak-exit",true,15,15,"true"],["default-profile",true,130,21,"simple-coding"],["sync-interval",true,86,29,"6"],["ignored-models",true,458,48,""]],"text":"Settings Launch at login Start automatically when you sign in. Notifications Peak pricing starts Peak pricing ends Default profile Applied when the menu has no active profile. Catalog sync interval Hours between pricing refreshes. hours Ignored models One provider/model id per line; skipped in recom"}

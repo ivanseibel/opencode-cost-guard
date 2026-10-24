@@ -29,3 +29,13 @@ Sealed Resources=none
 # lsappinfo info (final release build)
 CFBundleIdentifier="dev.ivanseibel.costguard"
 ApplicationType="UIElement"
+
+# fix-loop rebuild (Fixes 1-7)
+bundle mtime: Oct 24 05:16:39 2026
+bundle size:  15M
+Identifier=cost_guard_app-912310b28c629320
+Format=app bundle with Mach-O thin (arm64)
+Signature=adhoc
+TeamIdentifier=not set
+  "CFBundleIdentifier" => "dev.ivanseibel.costguard"
+  "LSUIElement" => true

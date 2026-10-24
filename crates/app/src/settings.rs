@@ -104,6 +104,13 @@ pub fn save_settings(
     Ok(config)
 }
 
+/// Debug-only fixture: log the settings page render probe from JS.
+#[cfg(debug_assertions)]
+#[tauri::command]
+pub fn settings_probe(report: String) {
+    eprintln!("cost-guard: settings render probe: {report}");
+}
+
 /// Read the current settings for the webview.
 #[tauri::command]
 pub fn settings_get(app: AppHandle) -> SettingsDto {

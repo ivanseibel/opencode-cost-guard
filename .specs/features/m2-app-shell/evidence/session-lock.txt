@@ -1,0 +1,12 @@
+# session lock probe (why per-window captures of the webview are blank)
+command: swift CGSessionCopyCurrentDictionary probe
+screenLocked=1
+onConsole=1
+loginDone=1
+lockedTime=1792808043
+
+# CGWindowList top windows while the app ran (no user windows above loginwindow)
+0: owner=loginwindow layer=2004
+1: owner=loginwindow layer=2001
+2: owner=UserNotificationCenter layer=8
+3: owner=Control Centre layer=25
