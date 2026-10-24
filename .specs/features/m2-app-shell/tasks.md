@@ -105,11 +105,11 @@ T8 → T9 → T10 → T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Missing config yields defaults; missing snapshot falls back to bundled and reports the source
-- [ ] Invalid config keeps the app alive with defaults in memory and an error string
-- [ ] `acknowledge_changes` and `set_profile` persist through core `Config`
-- [ ] Unit tests cover defaults, bundled fallback, invalid config, profile persistence (temp dirs)
-- [ ] Gate passes: quick gate command
+- [x] Missing config yields defaults; missing snapshot falls back to bundled and reports the source
+- [x] Invalid config keeps the app alive with defaults in memory and an error string
+- [x] `acknowledge_changes` and `set_profile` persist through core `Config`
+- [x] Unit tests cover defaults, bundled fallback, invalid config, profile persistence (temp dirs)
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
