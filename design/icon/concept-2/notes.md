@@ -1,0 +1,3 @@
+# Concept 2 — Beacon
+
+A green dot with two off-white arcs radiating up and to the right on a deep-navy tile: a signal that something is being watched and may change. The dot carries the "live / off-peak" green, the arcs carry the alert, and the quarter-arc geometry is wide and heavy rather than a thin wifi fan. It is distinctive in tone (monitoring, not money) but it is also the least ownable direction: arcs plus a dot sit very close to the familiar RSS/broadcast and Wi-Fi glyphs, which is a real risk for a price tool. 16 px check: weakest of the three — the dot survives, but at 16 px the two arcs shrink to roughly 1 px strokes with sub-pixel gaps and blur together; the 18 pt glyph (1.8 pt strokes) is passable in the menu bar but still the thinnest of the set.

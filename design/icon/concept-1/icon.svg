@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="upper"><polygon points="200,100 800,100 800,382.6 200,610.6"/></clipPath>
+    <clipPath id="lower"><polygon points="200,650.6 800,422.6 800,950 200,950"/></clipPath>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="#0B1220"/>
+  <rect x="282" y="232" width="460" height="560" rx="105" fill="#22C55E" clip-path="url(#upper)"/>
+  <rect x="282" y="232" width="460" height="560" rx="105" fill="#EF4444" clip-path="url(#lower)"/>
+</svg>
