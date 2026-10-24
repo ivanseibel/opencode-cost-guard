@@ -141,32 +141,32 @@ The core crate is complete and verified, but nothing runs yet: no menu-bar app, 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| APP-01 | P1: Shell and tray | Design | Pending |
-| APP-02 | P1: Shell and tray | Design | Pending |
-| APP-03 | P1: Shell and tray | Design | Pending |
-| TRAY-01 | P1: Shell and tray | Design | Pending |
-| TRAY-02 | P1: Shell and tray | Design | Pending |
-| TRAY-03 | P1: Shell and tray | Design | Pending |
-| TRAY-04 | P1: Shell and tray | Design | Pending |
-| MENU-01 | P1: Menu | Design | Pending |
-| MENU-02 | P1: Menu | Design | Pending |
-| MENU-03 | P1: Menu | Design | Pending |
-| MENU-04 | P1: Menu | Design | Pending |
-| MENU-05 | P1: Menu | Design | Pending |
-| MENU-06 | P1: Menu | Design | Pending |
-| NOTIF-01 | P1: Notifications | Design | Pending |
-| NOTIF-02 | P1: Notifications | Design | Pending |
-| NOTIF-03 | P1: Notifications | Design | Pending |
-| SYNCA-01 | P1: Sync | Design | Pending |
-| SYNCA-02 | P1: Sync | Design | Pending |
-| SYNCA-03 | P1: Sync | Design | Pending |
-| SYNCA-04 | P1: Sync | Design | Pending |
-| SET-01 | P1: Settings | Design | Pending |
-| SET-02 | P1: Settings | Design | Pending |
-| SET-03 | P1: Settings | Design | Pending |
-| PLAT-01 | P1: Settings | Design | Pending |
-| PLAT-02 | P1: Settings | Design | Pending |
-| SEC-01 | P1: Settings | Design | Pending |
+| APP-01 | P1: Shell and tray | Tasks | Verified |
+| APP-02 | P1: Shell and tray | Tasks | Verified |
+| APP-03 | P1: Shell and tray | Tasks | Verified |
+| TRAY-01 | P1: Shell and tray | Tasks | Verified |
+| TRAY-02 | P1: Shell and tray | Tasks | Verified |
+| TRAY-03 | P1: Shell and tray | Tasks | Verified |
+| TRAY-04 | P1: Shell and tray | Tasks | Verified |
+| MENU-01 | P1: Menu | Tasks | Verified |
+| MENU-02 | P1: Menu | Tasks | Verified |
+| MENU-03 | P1: Menu | Tasks | Verified |
+| MENU-04 | P1: Menu | Tasks | Verified |
+| MENU-05 | P1: Menu | Tasks | Verified |
+| MENU-06 | P1: Menu | Tasks | Verified |
+| NOTIF-01 | P1: Notifications | Tasks | Verified |
+| NOTIF-02 | P1: Notifications | Tasks | Verified |
+| NOTIF-03 | P1: Notifications | Tasks | Verified |
+| SYNCA-01 | P1: Sync | Tasks | Verified |
+| SYNCA-02 | P1: Sync | Tasks | Verified |
+| SYNCA-03 | P1: Sync | Tasks | Verified |
+| SYNCA-04 | P1: Sync | Tasks | Verified |
+| SET-01 | P1: Settings | Tasks | Verified |
+| SET-02 | P1: Settings | Tasks | Verified |
+| SET-03 | P1: Settings | Tasks | Verified |
+| PLAT-01 | P1: Settings | Tasks | Verified |
+| PLAT-02 | P1: Settings | Tasks | Verified |
+| SEC-01 | P1: Settings | Tasks | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 

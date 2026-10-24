@@ -64,17 +64,18 @@
 
 ## Handoff
 
-- **Feature**: core-v01 + scoring-fix (core-v01.1) — both complete and verified
-- **Phase / Task**: no active task
-- **Completed**: core-v01 T1–T22 (a9752fc..61d5d02, Verifier PASS 41/41, report `.specs/features/core-v01/validation.md`); scoring-fix T1–T6 (3beee9b..92e5722, Verifier PASS 10/10, report `.specs/features/scoring-fix/validation.md`)
+- **Feature**: m2-app-shell — complete (Verifier PASS iteration 2: 26/26 ACs, 6/6 mutations killed; report `.specs/features/m2-app-shell/validation.md`)
+- **Phase / Task**: tasks T1–T13 complete; 7 fix commits after the first FAIL loop
+- **Completed**: M2 commits `85b4c9a..cd452d3`; 155 workspace tests; release bundle at `target/release/bundle/macos/Cost Guard.app`
 - **In-progress** (file:line): none
-- **Next step**: open a new TLC feature for M2 (Tauri 2 app shell: tray title 🟢/🔴, native menu, peak notifications, autostart, settings window), starting from `AD-001..AD-006` above and `crates/core` public API
-- **Blockers**: none for local work. `main` is 33 commits ahead of `origin/main`; push requires an explicit go-ahead
+- **Next step**: M3 (release/packaging: notarization decision, Homebrew tap, updater) or dogfood the menu-bar app; optional follow-ups recorded in `validation.md`
+- **Blockers**: none for local work. `main` is ahead of `origin/main`; push requires an explicit go-ahead. GUI-only smoke legs were blocked by a locked macOS session and documented as non-blocking.
 - **Uncommitted files**: none
 - **Branch**: main
 
 **Open follow-ups**
 
-- Review `data/capabilities.toml` seeds: at peak, `muse-spark-1.3-contributor` wins complex/refactor (flagged with `DataTerms`). Adjust seeds if undesired.
-- COST-01 wording at `c_max` (epsilon floor) — non-blocking precision note from the Verifier.
-- `Cargo.lock` is gitignored (library stage); commit it when `crates/app` lands.
+- Optional (from validation.md): wire the startup-sync test to the real call site; reload settings on re-show.
+- Review `data/capabilities.toml` seeds (peak recommendation behavior).
+- COST-01 wording at `c_max` (epsilon floor).
+- GUI-only smoke legs (native menu clicks, painted settings screenshot) remain observation-only; re-run on an unlocked session with Accessibility if desired.
