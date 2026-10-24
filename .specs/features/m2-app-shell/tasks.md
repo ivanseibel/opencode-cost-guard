@@ -77,12 +77,12 @@ T8 → T9 → T10 → T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Workspace builds: `cargo check -p cost-guard-app`
-- [ ] `tauri.conf.json` has `app.windows: []`, `withGlobalTauri`, `frontendDist: "ui"`, reverse-DNS identifier, `bundle.targets: ["app"]`
-- [ ] `Info.plist` sets `LSUIElement=true`; runtime uses `ActivationPolicy::Accessory`
-- [ ] `capabilities/default.json` starts with `core:default` only for window `settings`; `notification:default` is added in T7 and `autostart:default` in T9 when the plugins land
-- [ ] Placeholder `icons/icon.png` exists; app launches with no window and no Dock tile
-- [ ] Gate passes: build gate command
+- [x] Workspace builds: `cargo check -p cost-guard-app`
+- [x] `tauri.conf.json` has `app.windows: []`, `withGlobalTauri`, `frontendDist: "ui"`, reverse-DNS identifier, `bundle.targets: ["app"]`
+- [x] `Info.plist` sets `LSUIElement=true`; runtime uses `ActivationPolicy::Accessory`
+- [x] `capabilities/default.json` starts with `core:default` only for window `settings`; `notification:default` is added in T7 and `autostart:default` in T9 when the plugins land
+- [x] Placeholder `icons/icon.png` exists; app launches with no window and no Dock tile
+- [x] Gate passes: build gate command
 
 **Tests**: none (scaffold/config, build gate)
 **Gate**: build

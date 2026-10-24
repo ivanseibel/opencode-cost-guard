@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Settings window permissions",
+  "windows": ["settings"],
+  "permissions": ["core:default"]
+}
