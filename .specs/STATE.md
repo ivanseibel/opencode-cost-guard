@@ -73,16 +73,16 @@
 
 ## Handoff
 
-- **Feature**: m3-release — complete (Verifier PASS: 9/9 ACs, 7/7 mutations; report `.specs/features/m3-release/validation.md`)
-- **Phase / Task**: tasks T1–T5 complete
-- **Completed**: M3 commits `144eb94..16b6914`; 155 workspace tests; release guard green; local dry-run artifact `target/release/CostGuard-v0.1.0-macos-arm64.zip` (4,849,409 bytes) verified
+- **Feature**: **v0.1.0 released** (2026-10-24) — https://github.com/ivanseibel/opencode-cost-guard/releases/tag/v0.1.0
+- **Phase / Task**: M0–M3 complete; release pipeline exercised end-to-end
+- **Completed**: `main` + tag `v0.1.0` pushed; Release run 40099813189 success; zip + `SHA256SUMS.txt` downloaded and verified locally
 - **In-progress** (file:line): none
-- **Next step**: user UAT of the built app, then publish v0.1.0 only after explicit approval (local tag `v0.1.0` → push tag → release workflow). Release hardening (guard in workflow + tag/version assertion) is applied.
-- **Blockers**: none for local work. `main` is ahead of `origin/main`; push, tag and GitHub Release require an explicit go-ahead.
+- **Next step**: dogfood v0.1.0; plan v0.2 (pre-peak warning, catalog-change notifications, settings polish, favorites) or Phase 2 (cost awareness)
+- **Blockers**: none. The build is unsigned/not notarized; Gatekeeper instructions live in `docs/releasing.md`.
 - **Uncommitted files**: none
 - **Branch**: main
 
 **Open follow-ups**
 
+- Calibrate `data/capabilities.toml` scores after dogfooding; contributor models stay eligible per AD-006.
 - M2 optional: wire the startup-sync test to the real call site; reload settings on re-show; GUI-only smoke legs remain observation-only.
-- Contributor policy decided (AD-006): models stay eligible; `DataTerms` is informational.
