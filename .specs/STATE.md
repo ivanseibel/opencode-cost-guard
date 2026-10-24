@@ -54,6 +54,14 @@
 - **Date**: 2026-10-24
 - **Status**: active
 
+### AD-007
+- **Decision**: The macOS shell lives in `crates/app` with `tauri.conf.json` at the crate root, static `ui/` assets (no Node), pinned Tauri 2.12.x, and Tauri CLI 2.12.4 installed prebuilt; Ubuntu CI runs core only while the macOS job checks/builds the app.
+- **Reason**: CLI discovers the crate at depth ≤3 without a `src-tauri` directory; static assets keep the build dependency-free; keeping the Ubuntu job core-only avoids GTK/WebKit deps.
+- **Trade-off**: Bundling requires the Tauri CLI; app CI coverage is macOS-only.
+- **Scope**: `crates/app`, CI, packaging for M2/M3.
+- **Date**: 2026-10-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: core-v01 + scoring-fix (core-v01.1) — both complete and verified
