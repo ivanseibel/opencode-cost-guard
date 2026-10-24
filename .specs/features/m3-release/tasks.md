@@ -7,7 +7,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: skipped (Medium; decisions live in `spec.md` Assumptions + `docs/adr/0008-unsigned-github-releases.md`)
-**Status**: Draft
+**Status**: Done
 
 ---
 

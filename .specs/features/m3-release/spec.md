@@ -98,15 +98,15 @@ M2 ships a verified `.app`, but releases are still manual: no tag-driven pipelin
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| REL-01 | P1: Release | Design | Pending |
-| REL-02 | P1: Release | Design | Pending |
-| REL-03 | P1: Release | Design | Pending |
-| REL-04 | P1: Release | Design | Pending |
-| REL-05 | P1: Guard/docs | Design | Pending |
-| REL-06 | P1: Guard/docs | Design | Pending |
-| REL-07 | P1: Dry-run | Design | Pending |
-| REL-08 | P1: Release | Design | Pending |
-| REL-09 | P1: Guard/docs | Design | Pending |
+| REL-01 | P1: Release | Tasks | Verified |
+| REL-02 | P1: Release | Tasks | Verified |
+| REL-03 | P1: Release | Tasks | Verified |
+| REL-04 | P1: Release | Tasks | Verified |
+| REL-05 | P1: Guard/docs | Tasks | Verified |
+| REL-06 | P1: Guard/docs | Tasks | Verified |
+| REL-07 | P1: Dry-run | Tasks | Verified |
+| REL-08 | P1: Release | Tasks | Verified |
+| REL-09 | P1: Guard/docs | Tasks | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 

@@ -73,17 +73,17 @@
 
 ## Handoff
 
-- **Feature**: m2-app-shell — complete (Verifier PASS iteration 2: 26/26 ACs, 6/6 mutations killed; report `.specs/features/m2-app-shell/validation.md`)
-- **Phase / Task**: tasks T1–T13 complete; 7 fix commits after the first FAIL loop
-- **Completed**: M2 commits `85b4c9a..cd452d3`; 155 workspace tests; release bundle at `target/release/bundle/macos/Cost Guard.app`
+- **Feature**: m3-release — complete (Verifier PASS: 9/9 ACs, 7/7 mutations; report `.specs/features/m3-release/validation.md`)
+- **Phase / Task**: tasks T1–T5 complete
+- **Completed**: M3 commits `144eb94..16b6914`; 155 workspace tests; release guard green; local dry-run artifact `target/release/CostGuard-v0.1.0-macos-arm64.zip` (4,849,409 bytes) verified
 - **In-progress** (file:line): none
-- **Next step**: M3 (release/packaging: notarization decision, Homebrew tap, updater) or dogfood the menu-bar app; optional follow-ups recorded in `validation.md`
-- **Blockers**: none for local work. `main` is ahead of `origin/main`; push requires an explicit go-ahead. GUI-only smoke legs were blocked by a locked macOS session and documented as non-blocking.
+- **Next step**: publish v0.1.0 only after explicit approval (local tag `v0.1.0` → push tag → release workflow); optional hardening from `validation.md` (run the guard in the release workflow; guard the publish trigger)
+- **Blockers**: none for local work. `main` is ahead of `origin/main`; push, tag and GitHub Release require an explicit go-ahead.
 - **Uncommitted files**: none
 - **Branch**: main
 
 **Open follow-ups**
 
-- Optional (from validation.md): wire the startup-sync test to the real call site; reload settings on re-show.
-- Calibrate `data/capabilities.toml` scores after dogfooding; contributor models stay eligible per AD-006 (policy decided 2026-10-24).
-- GUI-only smoke legs (native menu clicks, painted settings screenshot) remain observation-only; re-run on an unlocked session with Accessibility if desired.
+- Optional hardening (from m3 validation): invoke `check-release-config.sh` in the release workflow and assert the tag matches the version.
+- M2 optional: wire the startup-sync test to the real call site; reload settings on re-show; GUI-only smoke legs remain observation-only.
+- Contributor policy decided (AD-006): models stay eligible; `DataTerms` is informational.
