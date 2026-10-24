@@ -325,11 +325,11 @@ T12 → T13
 
 **Done when**:
 
-- [ ] All five settings render and round-trip through `settings_set`
-- [ ] Field errors render next to the input; success shows a saved state
-- [ ] No Node/npm in the build; files load from `frontendDist`
-- [ ] End-to-end manual check is covered by T13 (not in this task)
-- [ ] Gate passes: build gate command
+- [x] All five settings render and round-trip through `settings_set`
+- [x] Field errors render next to the input; success shows a saved state
+- [x] No Node/npm in the build; files load from `frontendDist`
+- [x] End-to-end manual check is covered by T13 (not in this task)
+- [x] Gate passes: build gate command
 
 **Tests**: none (static UI; manual checklist)
 **Gate**: build

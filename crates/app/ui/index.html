@@ -3,9 +3,122 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>Cost Guard Settings</title>
+    <link rel="stylesheet" href="settings.css">
+    <script src="settings.js" defer></script>
   </head>
   <body>
-    <h1>Cost Guard Settings</h1>
+    <main class="settings">
+      <header class="settings__header">
+        <h1>Settings</h1>
+      </header>
+
+      <div id="load-error" class="banner banner--error" role="alert" hidden>
+        <p id="load-error-message" class="banner__message"></p>
+        <button id="retry-load" class="button button--secondary" type="button">Retry</button>
+      </div>
+
+      <form id="settings-form" class="settings__form" novalidate aria-busy="true">
+        <div class="settings__scroll">
+          <div class="panel">
+            <div class="field field--inline">
+              <div class="field__text">
+                <label for="autostart">Launch at login</label>
+                <p id="autostart-hint" class="field__hint">Start automatically when you sign in.</p>
+              </div>
+              <input
+                id="autostart"
+                class="switch"
+                name="autostart"
+                type="checkbox"
+                role="switch"
+                aria-describedby="autostart-hint autostart-error"
+              >
+              <p id="autostart-error" class="field-error" data-error-for="autostart" hidden></p>
+            </div>
+
+            <fieldset class="field field--notifications" aria-describedby="notifications-error">
+              <legend class="field__legend">Notifications</legend>
+              <div class="checkbox-row">
+                <label class="checkbox" for="peak-enter">
+                  <input id="peak-enter" name="peakEnter" type="checkbox">
+                  <span>Peak pricing starts</span>
+                </label>
+                <label class="checkbox" for="peak-exit">
+                  <input id="peak-exit" name="peakExit" type="checkbox">
+                  <span>Peak pricing ends</span>
+                </label>
+              </div>
+              <p id="notifications-error" class="field-error" data-error-for="notifications" hidden></p>
+            </fieldset>
+
+            <div class="field field--inline">
+              <div class="field__text">
+                <label for="default-profile">Default profile</label>
+                <p id="default-profile-hint" class="field__hint">Applied when the menu has no active profile.</p>
+              </div>
+              <select
+                id="default-profile"
+                name="defaultProfile"
+                aria-describedby="default-profile-hint default-profile-error"
+              >
+                <option value="simple-coding">Simple coding</option>
+                <option value="complex-coding">Complex coding</option>
+                <option value="visual-ui">Visual / UI</option>
+                <option value="agentic-tools">Agentic tools</option>
+                <option value="large-refactor">Large refactor</option>
+              </select>
+              <p id="default-profile-error" class="field-error" data-error-for="defaultProfile" hidden></p>
+            </div>
+
+            <div class="field field--inline">
+              <div class="field__text">
+                <label for="sync-interval">Catalog sync interval</label>
+                <p id="sync-interval-hint" class="field__hint">Hours between pricing refreshes.</p>
+              </div>
+              <div class="number-field">
+                <input
+                  id="sync-interval"
+                  name="syncIntervalHours"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                  value="6"
+                  aria-describedby="sync-interval-hint sync-interval-error"
+                >
+                <span class="number-field__suffix">hours</span>
+              </div>
+              <p id="sync-interval-error" class="field-error" data-error-for="syncIntervalHours" hidden></p>
+            </div>
+
+            <div class="field">
+              <label for="ignored-models">Ignored models</label>
+              <p id="ignored-models-hint" class="field__hint">
+                One <code>provider/model</code> id per line; skipped in recommendations.
+              </p>
+              <textarea
+                id="ignored-models"
+                name="ignoredModels"
+                rows="2"
+                spellcheck="false"
+                placeholder="provider/model"
+                aria-describedby="ignored-models-hint ignored-models-error"
+              ></textarea>
+              <p id="ignored-models-error" class="field-error" data-error-for="ignoredModels" hidden></p>
+            </div>
+          </div>
+        </div>
+
+        <footer class="settings__actions">
+          <div class="settings__status">
+            <p id="save-status" class="save-status" role="status" hidden>Settings saved.</p>
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+          </div>
+          <button id="save" class="button" type="submit" disabled>Save changes</button>
+        </footer>
+      </form>
+    </main>
   </body>
 </html>
