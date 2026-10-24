@@ -121,7 +121,7 @@ crates/app/
 
 ### `capabilities/default.json`
 
-- **Content**: `core:default`, `notification:default`, `autostart:default`; `windows: ["settings"]`. Custom commands need no ACL entry (verified).
+- **Content**: starts with `core:default`; `notification:default` is added when the notification plugin lands (T7) and `autostart:default` when autostart lands (T9). `windows: ["settings"]`. Custom commands need no ACL entry (verified).
 
 ---
 

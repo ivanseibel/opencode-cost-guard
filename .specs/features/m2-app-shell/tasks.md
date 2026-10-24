@@ -80,7 +80,7 @@ T8 → T9 → T10 → T11 → T12 → T13
 - [ ] Workspace builds: `cargo check -p cost-guard-app`
 - [ ] `tauri.conf.json` has `app.windows: []`, `withGlobalTauri`, `frontendDist: "ui"`, reverse-DNS identifier, `bundle.targets: ["app"]`
 - [ ] `Info.plist` sets `LSUIElement=true`; runtime uses `ActivationPolicy::Accessory`
-- [ ] `capabilities/default.json` enables `core:default`, `notification:default`, `autostart:default` for window `settings`
+- [ ] `capabilities/default.json` starts with `core:default` only for window `settings`; `notification:default` is added in T7 and `autostart:default` in T9 when the plugins land
 - [ ] Placeholder `icons/icon.png` exists; app launches with no window and no Dock tile
 - [ ] Gate passes: build gate command
 
@@ -187,6 +187,7 @@ T8 → T9 → T10 → T11 → T12 → T13
 **Done when**:
 
 - [ ] Tray appears with title and menu; no duplicate tray item (no `app.trayIcon` in config)
+- [ ] `capabilities/default.json` gains `notification:default`
 - [ ] Title/menu update only when state or badge changes; no write inside `setup()`
 - [ ] Menu contains state, transition, prices, five profile check items, recommendation + reasons, alternatives submenu, source line, Sync (disabled when in flight), Settings, Quit
 - [ ] Fallback path switches to icon + tooltip and logs once if `set_title` fails
@@ -293,6 +294,7 @@ T8 → T9 → T10 → T11 → T12 → T13
 **Done when**:
 
 - [ ] DTO round-trips all config fields; unknown fields preserved by core save
+- [ ] `capabilities/default.json` gains `autostart:default`
 - [ ] Invalid values return `{ field, message }` and do not touch the file
 - [ ] Autostart toggle calls the plugin only outside dev builds; LaunchAgent app name is stable
 - [ ] Unit tests cover mapping and error mapping
