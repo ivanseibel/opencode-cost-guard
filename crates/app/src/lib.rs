@@ -6,4 +6,8 @@
 
 pub mod app_state;
 pub mod events;
+pub mod menu;
+pub mod runtime;
+pub mod sync_job;
+pub mod tray;
 pub mod ui_model;

@@ -190,11 +190,11 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Tray appears with title and menu; no duplicate tray item (no `app.trayIcon` in config)
-- [ ] Title/menu update only when state or badge changes; no write inside `setup()`
-- [ ] Menu contains state, transition, prices, five profile check items, recommendation + reasons, alternatives submenu, source line, Sync (disabled when in flight), Settings, Quit
-- [ ] Fallback path switches to icon + tooltip and logs once if `set_title` fails
-- [ ] Gate passes: build gate command
+- [x] Tray appears with title and menu; no duplicate tray item (no `app.trayIcon` in config)
+- [x] Title/menu update only when state or badge changes; no write inside `setup()`
+- [x] Menu contains state, transition, prices, five profile check items, recommendation + reasons, alternatives submenu, source line, Sync (disabled when in flight), Settings, Quit
+- [x] Fallback path switches to icon + tooltip and logs once if `set_title` fails
+- [x] Gate passes: build gate command
 
 **Tests**: none (Tauri glue; strings covered in T3)
 **Gate**: build
