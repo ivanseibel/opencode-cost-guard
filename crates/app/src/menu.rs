@@ -334,7 +334,7 @@ mod tests {
     #[test]
     fn bundled_overlays_add_no_warning_lines() {
         let dir = tempfile::tempdir().expect("tempdir");
-        let state = AppState::load(dir.path().to_path_buf()).expect("app state loads");
+        let state = AppState::load(dir.path().to_path_buf());
 
         let presentation = present(&state, false, instant());
 
@@ -344,7 +344,7 @@ mod tests {
     #[test]
     fn holiday_coverage_gap_is_surfaced_in_the_presentation() {
         let dir = tempfile::tempdir().expect("tempdir");
-        let mut state = AppState::load(dir.path().to_path_buf()).expect("app state loads");
+        let mut state = AppState::load(dir.path().to_path_buf());
         state
             .overlays
             .holidays

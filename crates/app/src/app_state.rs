@@ -1,15 +1,19 @@
 //! App state: config, overlays and catalog snapshots with bundled fallback.
 //!
 //! Everything the tray, menu and timers read lives here. Startup never aborts
-//! on bad user data: a broken config or snapshot falls back to defaults and
-//! bundled data while recording a message for the menu (APP-03, SYNCA-03).
+//! on bad user data or a broken bundled asset: a broken config or snapshot
+//! falls back to defaults and bundled data while recording a message for the
+//! menu (APP-03, SYNCA-03). If the bundled overlays or snapshot themselves
+//! fail, the state degrades to empty in-memory data plus the same error item.
 
 use std::path::PathBuf;
 
 use chrono::{DateTime, Utc};
-use cost_guard_core::catalog::{CatalogError, CatalogSnapshot, parse_snapshot};
+use cost_guard_core::catalog::{CatalogSnapshot, parse_snapshot};
 use cost_guard_core::config::{Config, ConfigError, TaskProfile};
-use cost_guard_core::overlay::{OverlayError, Overlays};
+use cost_guard_core::overlay::{
+    CapabilitiesOverlay, HolidaysOverlay, LimitsOverlay, Overlays, WindowsOverlay,
+};
 use cost_guard_core::sync::changes::detect_changes;
 use cost_guard_core::sync::snapshot::SnapshotStore;
 use cost_guard_core::sync::{ActiveSource, SyncOutcome, SyncStatus};
@@ -19,13 +23,11 @@ const BUNDLED_SNAPSHOT: &str = include_str!(concat!(
     "/../../data/bundled/opencode-go.json"
 ));
 
-/// Startup failures that bundled data cannot recover from.
-#[derive(Debug, thiserror::Error)]
-pub enum AppError {
-    #[error("failed to load bundled overlays: {0}")]
-    Overlays(#[from] OverlayError),
-    #[error("failed to parse the bundled catalog snapshot: {0}")]
-    BundledSnapshot(#[from] CatalogError),
+/// Data embedded in the binary and needed to start the app.
+#[derive(Debug, Clone)]
+pub struct BundledData {
+    pub overlays: Overlays,
+    pub snapshot: CatalogSnapshot,
 }
 
 /// Mutable state shared by the tray, menu, timers and settings commands.
@@ -52,14 +54,33 @@ impl AppState {
     /// Missing config yields defaults. An invalid config yields defaults in
     /// memory plus [`AppState::error`], leaving the file untouched. A missing
     /// or invalid snapshot falls back to bundled data and reports the source.
-    pub fn load(data_dir: impl Into<PathBuf>) -> Result<Self, AppError> {
+    /// A failure to load the bundled overlays or snapshot also degrades to an
+    /// empty in-memory state with [`AppState::error`] set, so startup never
+    /// aborts (APP-03).
+    pub fn load(data_dir: impl Into<PathBuf>) -> Self {
+        Self::load_with(data_dir, load_bundled)
+    }
+
+    /// [`AppState::load`] with an injectable bundled-data loader for tests.
+    fn load_with(
+        data_dir: impl Into<PathBuf>,
+        load_bundled: impl FnOnce() -> Result<BundledData, String>,
+    ) -> Self {
         let data_dir = data_dir.into();
-        let (config, error) = match Config::load(&data_dir) {
+        let (config, mut error) = match Config::load(&data_dir) {
             Ok(config) => (config, None),
             Err(error) => (Config::default(), Some(error.to_string())),
         };
-        let overlays = Overlays::bundled()?;
-        let bundled = parse_snapshot(BUNDLED_SNAPSHOT)?;
+        let (overlays, bundled) = match load_bundled() {
+            Ok(data) => (data.overlays, data.snapshot),
+            Err(message) => {
+                error = Some(match error {
+                    Some(existing) => format!("{existing}; {message}"),
+                    None => message,
+                });
+                degraded_data()
+            }
+        };
         let store = SnapshotStore::new(data_dir.clone());
 
         let (snapshot, source, last_sync_at) = match store.load_current() {
@@ -70,7 +91,7 @@ impl AppState {
             None => (bundled.clone(), ActiveSource::Bundled, None),
         };
 
-        Ok(Self {
+        Self {
             data_dir,
             config,
             overlays,
@@ -80,7 +101,7 @@ impl AppState {
             last_sync_at,
             badge: false,
             error,
-        })
+        }
     }
 
     /// Reload the active snapshot from disk, falling back to bundled data.
@@ -178,6 +199,60 @@ impl AppState {
     }
 }
 
+/// Load the data embedded in the binary, naming the failing piece.
+fn load_bundled() -> Result<BundledData, String> {
+    let overlays =
+        Overlays::bundled().map_err(|error| format!("failed to load bundled overlays: {error}"))?;
+    let snapshot = parse_snapshot(BUNDLED_SNAPSHOT)
+        .map_err(|error| format!("failed to parse the bundled catalog snapshot: {error}"))?;
+
+    Ok(BundledData { overlays, snapshot })
+}
+
+/// Empty data used when even the bundled files cannot be loaded.
+///
+/// The menu still renders: no provider window means flat pricing, an empty
+/// roster means a named no-candidate reason, and the holiday warning names the
+/// uncovered year.
+fn degraded_data() -> (Overlays, CatalogSnapshot) {
+    let overlays = Overlays {
+        windows: WindowsOverlay {
+            schema: 1,
+            source: String::new(),
+            last_verified: String::new(),
+            providers: Vec::new(),
+        },
+        holidays: HolidaysOverlay {
+            schema: 1,
+            source: String::new(),
+            last_verified: String::new(),
+            years: Vec::new(),
+        },
+        limits: LimitsOverlay {
+            schema: 1,
+            source: String::new(),
+            last_verified: String::new(),
+            plan: None,
+            models: Vec::new(),
+        },
+        capabilities: CapabilitiesOverlay {
+            schema: 1,
+            source: String::new(),
+            last_verified: String::new(),
+            models: Vec::new(),
+        },
+    };
+    let snapshot = CatalogSnapshot {
+        schema: 1,
+        source: String::new(),
+        etag: None,
+        fetched_at: String::new(),
+        models: Vec::new(),
+    };
+
+    (overlays, snapshot)
+}
+
 /// Parse the RFC 3339 fetch time stored with a snapshot.
 fn snapshot_time(snapshot: &CatalogSnapshot) -> Option<DateTime<Utc>> {
     DateTime::parse_from_rfc3339(&snapshot.fetched_at)
@@ -192,7 +267,7 @@ mod tests {
     use std::path::Path;
 
     fn load(dir: &Path) -> AppState {
-        AppState::load(dir.to_path_buf()).expect("app state loads")
+        AppState::load(dir.to_path_buf())
     }
 
     fn updated() -> SyncOutcome {
@@ -233,6 +308,52 @@ mod tests {
         assert!(!state.badge);
         assert_eq!(state.error, None);
         assert!(!dir.path().join("config.json").exists());
+    }
+
+    #[test]
+    fn bundled_failure_degrades_instead_of_aborting_startup() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let state = AppState::load_with(dir.path().to_path_buf(), || {
+            Err("failed to load bundled overlays: fixture".to_string())
+        });
+
+        assert_eq!(state.source, ActiveSource::Bundled);
+        assert_eq!(state.last_sync_at, None);
+        assert!(state.snapshot.models.is_empty());
+        assert!(state.overlays.windows.providers.is_empty());
+        let error = state.error.as_deref().expect("error string");
+        assert!(error.contains("bundled overlays"), "{error}");
+
+        let presentation = crate::menu::present(&state, false, instant("2026-10-26T02:00:00Z"));
+        assert_eq!(presentation.title, "🟢 DS off");
+        assert_eq!(
+            presentation.prices,
+            vec!["DeepSeek V4.1 Flash is not in the current catalog"]
+        );
+        assert!(presentation.recommendation[0].starts_with("No candidate: empty roster"));
+        assert_eq!(presentation.error.as_deref(), Some(error));
+        assert_eq!(
+            presentation.warnings,
+            vec!["Warning: holiday calendar does not cover 2026"]
+        );
+    }
+
+    #[test]
+    fn invalid_config_and_bundled_failure_keep_both_errors() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        fs::write(
+            dir.path().join("config.json"),
+            r#"{"syncIntervalHours": 0}"#,
+        )
+        .expect("write invalid config");
+
+        let state = AppState::load_with(dir.path().to_path_buf(), || {
+            Err("bundled catalog snapshot is corrupt".to_string())
+        });
+
+        let error = state.error.expect("combined error string");
+        assert!(error.contains("syncIntervalHours"), "{error}");
+        assert!(error.contains("bundled catalog snapshot"), "{error}");
     }
 
     #[test]

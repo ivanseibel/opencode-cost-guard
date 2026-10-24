@@ -166,7 +166,7 @@ mod tests {
     }
 
     fn state(dir: &Path) -> AppState {
-        AppState::load(dir).expect("app state loads")
+        AppState::load(dir.to_path_buf())
     }
 
     #[test]

@@ -27,7 +27,7 @@ fn main() {
 
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
-            let state = AppState::load(data_dir)?;
+            let state = AppState::load(data_dir);
 
             app.manage(Mutex::new(state));
             app.manage(sync_job::SyncGuard::default());
