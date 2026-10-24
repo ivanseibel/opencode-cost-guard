@@ -1,10 +1,11 @@
 use std::sync::Mutex;
 
-use cost_guard_app::{app_state::AppState, menu, sync_job, tray};
+use cost_guard_app::{app_state::AppState, menu, sync_job, timer, tray};
 use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .on_menu_event(menu::on_menu_event)
         .setup(|app| {
             #[cfg(target_os = "macos")]
@@ -18,6 +19,7 @@ fn main() {
             app.manage(sync_job::SyncGuard::default());
             app.manage(tray::LastPresentation::default());
             tray::build(app.handle())?;
+            timer::spawn(app.handle());
 
             Ok(())
         })

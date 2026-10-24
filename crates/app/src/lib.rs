@@ -9,5 +9,6 @@ pub mod events;
 pub mod menu;
 pub mod runtime;
 pub mod sync_job;
+pub mod timer;
 pub mod tray;
 pub mod ui_model;

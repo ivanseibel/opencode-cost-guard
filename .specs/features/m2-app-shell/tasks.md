@@ -243,12 +243,12 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Tick uses `MissedTickBehavior::Skip`; no title writes when unchanged
-- [ ] `capabilities/default.json` gains `notification:default` and the notification plugin is registered
-- [ ] Notification body names the new recommended model for the active profile (or the no-candidate reason)
-- [ ] `should_sync(now, last_sync, interval)` is pure and unit-tested
-- [ ] Sync failure keeps state and logs; no modal
-- [ ] Gate passes: quick gate command
+- [x] Tick uses `MissedTickBehavior::Skip`; no title writes when unchanged
+- [x] `capabilities/default.json` gains `notification:default` and the notification plugin is registered
+- [x] Notification body names the new recommended model for the active profile (or the no-candidate reason)
+- [x] `should_sync(now, last_sync, interval)` is pure and unit-tested
+- [x] Sync failure keeps state and logs; no modal
+- [x] Gate passes: quick gate command
 
 **Tests**: unit (scheduler decision)
 **Gate**: quick

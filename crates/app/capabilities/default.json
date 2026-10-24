@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Settings window permissions",
+  "description": "Settings window and notification permissions",
   "windows": ["settings"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "notification:default"]
 }
