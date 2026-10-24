@@ -1,10 +1,11 @@
 use std::sync::Mutex;
 
-use cost_guard_app::{app_state::AppState, sync_job, tray};
+use cost_guard_app::{app_state::AppState, menu, sync_job, tray};
 use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
+        .on_menu_event(menu::on_menu_event)
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);

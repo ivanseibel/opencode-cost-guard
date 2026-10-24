@@ -217,10 +217,10 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Profile change persists and rebuilds the menu with the correct check mark
-- [ ] Acknowledge removes ` ⚠` and hides the item
-- [ ] Quit calls `app.exit(0)`; Settings shows the window
-- [ ] Gate passes: build gate command
+- [x] Profile change persists and rebuilds the menu with the correct check mark
+- [x] Acknowledge removes ` ⚠` and hides the item
+- [x] Quit calls `app.exit(0)`; Settings shows the window
+- [x] Gate passes: build gate command
 
 **Tests**: none (event glue; persistence covered in T2)
 **Gate**: build

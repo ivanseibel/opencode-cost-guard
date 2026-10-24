@@ -8,11 +8,17 @@ use chrono::{DateTime, Local, Utc};
 use cost_guard_core::config::TaskProfile;
 use cost_guard_core::recommend::Engine;
 use cost_guard_core::schedule::state_for;
-use tauri::menu::{CheckMenuItem, IsMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu};
-use tauri::{AppHandle, Wry};
+use tauri::menu::{
+    CheckMenuItem, IsMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
+};
+use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, Wry};
 
 use crate::app_state::AppState;
 use crate::ui_model;
+use crate::{runtime, sync_job, tray};
+
+/// Label of the settings webview; must match `capabilities/default.json`.
+pub const SETTINGS_LABEL: &str = "settings";
 
 /// Vendor whose Pricing Window drives the tray and price block.
 pub const DEEPSEEK_VENDOR: &str = "deepseek";
@@ -220,4 +226,65 @@ pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu
 /// Disabled menu item used for read-only labels.
 fn label(app: &AppHandle, id: &str, text: &str) -> tauri::Result<MenuItem<Wry>> {
     MenuItem::with_id(app, id, text, false, None::<&str>)
+}
+
+/// Handle a tray menu selection (MENU-02, MENU-05, SYNCA-02).
+pub fn on_menu_event(app: &AppHandle, event: MenuEvent) {
+    let id = event.id().as_ref();
+
+    if let Some(value) = id.strip_prefix(PROFILE_PREFIX) {
+        switch_profile(app, value);
+        return;
+    }
+
+    match id {
+        ID_ACKNOWLEDGE => {
+            runtime::with_state_mut(app, |state| {
+                state.acknowledge_changes();
+            });
+            tray::refresh(app);
+        }
+        ID_SYNC => sync_job::spawn(app),
+        ID_SETTINGS => show_settings(app),
+        ID_QUIT => app.exit(0),
+        _ => {}
+    }
+}
+
+fn switch_profile(app: &AppHandle, value: &str) {
+    let profile = match value.parse::<TaskProfile>() {
+        Ok(profile) => profile,
+        Err(error) => {
+            eprintln!("cost-guard: ignoring unknown profile menu id `{value}`: {error}");
+            return;
+        }
+    };
+
+    if let Err(error) = runtime::with_state_mut(app, |state| state.set_profile(profile)) {
+        eprintln!("cost-guard: failed to persist profile: {error}");
+        runtime::with_state_mut(app, |state| state.error = Some(error.to_string()));
+    }
+    tray::refresh(app);
+}
+
+fn show_settings(app: &AppHandle) {
+    if let Some(window) = app.get_webview_window(SETTINGS_LABEL) {
+        if let Err(error) = window.show() {
+            eprintln!("cost-guard: failed to show settings: {error}");
+        }
+        let _ = window.set_focus();
+        return;
+    }
+
+    match WebviewWindowBuilder::new(app, SETTINGS_LABEL, WebviewUrl::App("index.html".into()))
+        .title("Cost Guard Settings")
+        .inner_size(520.0, 420.0)
+        .resizable(false)
+        .build()
+    {
+        Ok(window) => {
+            let _ = window.set_focus();
+        }
+        Err(error) => eprintln!("cost-guard: failed to open settings: {error}"),
+    }
 }
