@@ -352,10 +352,10 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Menu Settings shows the window; close hides it and the app keeps running
-- [ ] Quit exits cleanly with the window hidden or open
-- [ ] Bundled build has no Dock icon and no Cmd-Tab entry (`LSUIElement`); dev uses accessory policy
-- [ ] Gate passes: build gate command
+- [x] Menu Settings shows the window; close hides it and the app keeps running
+- [x] Quit exits cleanly with the window hidden or open
+- [x] Bundled build has no Dock icon and no Cmd-Tab entry (`LSUIElement`); dev uses accessory policy
+- [x] Gate passes: build gate command
 
 **Tests**: none (window lifecycle glue; smoke)
 **Gate**: build

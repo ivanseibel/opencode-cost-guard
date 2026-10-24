@@ -12,6 +12,15 @@ fn main() {
             settings::settings_set
         ])
         .on_menu_event(menu::on_menu_event)
+        .on_window_event(|window, event| {
+            // Close hides the settings window; Quit remains the only exit path.
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event
+                && window.label() == menu::SETTINGS_LABEL
+            {
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        })
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
