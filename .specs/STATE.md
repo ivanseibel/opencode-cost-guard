@@ -56,11 +56,17 @@
 
 ## Handoff
 
-- **Feature**: scoring-fix (core-v01.1) — complete (Verifier PASS, 10/10 ACs, 4/4 mutations killed)
-- **Phase / Task**: T1–T6 complete
-- **Completed**: T1–T6 (commits 3beee9b..92e5722) + validation report
-- **In-progress**: none
-- **Next step**: plan M2 (Tauri app shell: tray, menu, notifications, settings) as the next feature
-- **Blockers**: none — local commits are ahead of origin; pushing needs an explicit go-ahead
+- **Feature**: core-v01 + scoring-fix (core-v01.1) — both complete and verified
+- **Phase / Task**: no active task
+- **Completed**: core-v01 T1–T22 (a9752fc..61d5d02, Verifier PASS 41/41, report `.specs/features/core-v01/validation.md`); scoring-fix T1–T6 (3beee9b..92e5722, Verifier PASS 10/10, report `.specs/features/scoring-fix/validation.md`)
+- **In-progress** (file:line): none
+- **Next step**: open a new TLC feature for M2 (Tauri 2 app shell: tray title 🟢/🔴, native menu, peak notifications, autostart, settings window), starting from `AD-001..AD-006` above and `crates/core` public API
+- **Blockers**: none for local work. `main` is 33 commits ahead of `origin/main`; push requires an explicit go-ahead
 - **Uncommitted files**: none
 - **Branch**: main
+
+**Open follow-ups**
+
+- Review `data/capabilities.toml` seeds: at peak, `muse-spark-1.3-contributor` wins complex/refactor (flagged with `DataTerms`). Adjust seeds if undesired.
+- COST-01 wording at `c_max` (epsilon floor) — non-blocking precision note from the Verifier.
+- `Cargo.lock` is gitignored (library stage); commit it when `crates/app` lands.
