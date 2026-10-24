@@ -191,7 +191,6 @@ T12 → T13
 **Done when**:
 
 - [ ] Tray appears with title and menu; no duplicate tray item (no `app.trayIcon` in config)
-- [ ] `capabilities/default.json` gains `notification:default`
 - [ ] Title/menu update only when state or badge changes; no write inside `setup()`
 - [ ] Menu contains state, transition, prices, five profile check items, recommendation + reasons, alternatives submenu, source line, Sync (disabled when in flight), Settings, Quit
 - [ ] Fallback path switches to icon + tooltip and logs once if `set_title` fails
@@ -245,6 +244,7 @@ T12 → T13
 **Done when**:
 
 - [ ] Tick uses `MissedTickBehavior::Skip`; no title writes when unchanged
+- [ ] `capabilities/default.json` gains `notification:default` and the notification plugin is registered
 - [ ] Notification body names the new recommended model for the active profile (or the no-candidate reason)
 - [ ] `should_sync(now, last_sync, interval)` is pure and unit-tested
 - [ ] Sync failure keeps state and logs; no modal
