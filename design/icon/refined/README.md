@@ -1,5 +1,7 @@
 # Refined icon concepts
 
+**Selected (2026-10-24): `authored-slit`.** Integrated as the app icon and menu-bar glyph; keep the other explorations for history.
+
 Three evolutions of concept 1 (price window), following `../../icon-brief.md` and the maintainer feedback: concept 2 (beacon) is dropped, concept 3's gate silhouette is reused for glyph discipline, and the off-white tile is replaced by navy. Each folder holds `icon.svg` (1024, transparent corners, tile in the 824 px safe area, tile + 2 shapes), `glyph.svg` (18 pt grid, black), PNGs at 1024/256/128/32/16, and `notes.md`. PNGs are alpha-masked after `qlmanage` rendering. See `contact-sheet.png` for all sizes on light and dark, plus the glyphs on light and dark strips.
 
 | # | Folder | Idea | Glyph |

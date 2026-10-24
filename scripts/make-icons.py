@@ -1,73 +1,68 @@
 #!/usr/bin/env python3
-"""Generate Cost Guard icons (run from the repo root: python3 scripts/make-icons.py).
+"""Render Cost Guard icon assets from the selected design.
 
-After regenerating, refresh the macOS bundle icon with:
+Selected design: design/icon/refined/authored-slit (2026-10-24).
 
-    cd crates/app && cargo tauri icon icons/icon.png
+Usage:
+    python3 scripts/make-icons.py
+    cd crates/app && cargo tauri icon icons/icon.png   # refresh icon.icns
 
-The Tauri CLI writes icon.icns plus platform extras; keep only icon.icns and
-icon.png in crates/app/icons.
+Keep only icon.icns and icon.png plus the tray-* assets in crates/app/icons.
 """
 
+from __future__ import annotations
+
+import subprocess
+import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parent.parent
 ICONS = ROOT / "crates" / "app" / "icons"
+SOURCE = ICONS / "source"
 
 
-def shield(cx: float, top: float, width: float, height: float) -> list[tuple[float, float]]:
-    left, right = cx - width / 2, cx + width / 2
-    shoulder = top + height * 0.55
-    return [
-        (left, top),
-        (right, top),
-        (right, shoulder),
-        (cx, top + height),
-        (left, shoulder),
-    ]
+def render_glyph_mask() -> Image.Image:
+    """Rasterize the selected tray glyph into a 44x44 alpha mask."""
+    with tempfile.TemporaryDirectory() as tmp:
+        subprocess.run(
+            ["qlmanage", "-t", "-s", "1024", "-o", tmp, str(SOURCE / "tray-glyph.svg")],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        rendered = Path(tmp) / "tray-glyph.svg.png"
+        gray = Image.open(rendered).convert("L")
+
+    alpha = ImageOps.invert(gray)
+    bbox = alpha.getbbox()
+    if bbox is None:
+        raise SystemExit("tray glyph rendered empty")
+    alpha = alpha.crop(bbox)
+
+    canvas = Image.new("L", (44, 44), 0)
+    scale = min(36 / alpha.width, 36 / alpha.height)
+    size = (max(1, round(alpha.width * scale)), max(1, round(alpha.height * scale)))
+    resized = alpha.resize(size, Image.LANCZOS)
+    canvas.paste(resized, ((44 - size[0]) // 2, (44 - size[1]) // 2))
+    return canvas
 
 
-def app_icon() -> Image.Image:
-    image = Image.new("RGBA", (1024, 1024), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(image)
-    draw.rounded_rectangle((64, 64, 960, 960), radius=200, fill=(15, 23, 42, 255))
-
-    outer = shield(512, 230, 460, 540)
-    mask = Image.new("L", (1024, 1024), 0)
-    ImageDraw.Draw(mask).polygon(outer, fill=255)
-    image.paste(Image.new("RGBA", (1024, 1024), (248, 250, 252, 255)), (0, 0), mask)
-
-    inner = shield(512, 286, 340, 420)
-    inner_mask = Image.new("L", (1024, 1024), 0)
-    ImageDraw.Draw(inner_mask).polygon(inner, fill=255)
-    split = Image.new("RGBA", (1024, 1024), (34, 197, 94, 255))
-    ImageDraw.Draw(split).rectangle((0, 520, 1024, 1024), fill=(239, 68, 68, 255))
-    image.paste(split, (0, 0), inner_mask)
-
-    return image
-
-
-def tray_template() -> Image.Image:
-    image = Image.new("RGBA", (44, 44), (0, 0, 0, 0))
-    ImageDraw.Draw(image).polygon(shield(22, 5, 28, 34), fill=(0, 0, 0, 255))
-    return image
-
-
-def tray_state(color: tuple[int, int, int]) -> Image.Image:
-    image = Image.new("RGBA", (44, 44), (0, 0, 0, 0))
-    ImageDraw.Draw(image).polygon(shield(22, 5, 28, 34), fill=(*color, 255))
+def tint(mask: Image.Image, rgb: tuple[int, int, int]) -> Image.Image:
+    image = Image.new("RGBA", mask.size, (*rgb, 0))
+    image.putalpha(mask)
     return image
 
 
 def main() -> None:
-    ICONS.mkdir(parents=True, exist_ok=True)
-    app_icon().save(ICONS / "icon.png")
-    tray_template().save(ICONS / "tray-template.png")
-    tray_state((34, 197, 94)).save(ICONS / "tray-fallback-off.png")
-    tray_state((239, 68, 68)).save(ICONS / "tray-fallback-on.png")
-    print("icons written to", ICONS)
+    (ICONS / "icon.png").write_bytes((SOURCE / "app-icon-1024.png").read_bytes())
+
+    mask = render_glyph_mask()
+    tint(mask, (0, 0, 0)).save(ICONS / "tray-template.png")
+    tint(mask, (34, 197, 94)).save(ICONS / "tray-fallback-off.png")
+    tint(mask, (239, 68, 68)).save(ICONS / "tray-fallback-on.png")
+    print("icons written; run `cd crates/app && cargo tauri icon icons/icon.png` for icon.icns")
 
 
 if __name__ == "__main__":
