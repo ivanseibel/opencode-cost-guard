@@ -62,6 +62,15 @@
 - **Date**: 2026-10-24
 - **Status**: active
 
+### AD-008
+- **Decision**: v0.1.0 is distributed as an ad-hoc-signed, non-notarized macOS `.app` zip via GitHub Releases, with the Gatekeeper workaround documented; notarization is deferred until external demand justifies the cost.
+- **Reason**: Personal-first tool; the primary user builds from source. Developer ID + notarization adds $99/year, secrets and CI complexity now.
+- **Trade-off**: Gatekeeper warnings and manual bypass on first launch; no updater until signing is consistent.
+- **Scope**: Release workflow, docs, future distribution (Homebrew, updater).
+- **Date**: 2026-10-24
+- **Status**: active
+- See `docs/adr/0008-unsigned-github-releases.md`.
+
 ## Handoff
 
 - **Feature**: m2-app-shell — complete (Verifier PASS iteration 2: 26/26 ACs, 6/6 mutations killed; report `.specs/features/m2-app-shell/validation.md`)
