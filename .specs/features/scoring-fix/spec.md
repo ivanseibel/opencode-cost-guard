@@ -107,16 +107,16 @@ The verified core-v01 implementation applies DeepSeek's peak multiplier to **eve
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| VEND-01 | P1: Per-vendor peak | Tasks | In Tasks |
-| PEAK-01 | P1: Per-vendor peak | Tasks | In Tasks |
-| PEAK-02 | P1: Per-vendor peak | Tasks | In Tasks |
-| COST-01 | P1: Cost normalization | Tasks | In Tasks |
-| COST-02 | P1: Cost normalization | Tasks | In Tasks |
-| COST-03 | P1: Cost normalization | Tasks | In Tasks |
-| TERMS-01 | P1: Terms visibility | Tasks | In Tasks |
-| TERMS-02 | P1: Terms visibility | Tasks | In Tasks |
-| MATRIX-01 | P1: Matrix | Tasks | In Tasks |
-| MATRIX-02 | P1: Matrix | Tasks | In Tasks |
+| VEND-01 | P1: Per-vendor peak | Tasks | Verified |
+| PEAK-01 | P1: Per-vendor peak | Tasks | Verified |
+| PEAK-02 | P1: Per-vendor peak | Tasks | Verified |
+| COST-01 | P1: Cost normalization | Tasks | Verified |
+| COST-02 | P1: Cost normalization | Tasks | Verified |
+| COST-03 | P1: Cost normalization | Tasks | Verified |
+| TERMS-01 | P1: Terms visibility | Tasks | Verified |
+| TERMS-02 | P1: Terms visibility | Tasks | Verified |
+| MATRIX-01 | P1: Matrix | Tasks | Verified |
+| MATRIX-02 | P1: Matrix | Tasks | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 

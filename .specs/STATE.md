@@ -56,11 +56,11 @@
 
 ## Handoff
 
-- **Feature**: core-v01 — complete (Verifier PASS, 41/41 ACs, 6/6 mutations killed)
-- **Phase / Task**: all tasks T1–T22 complete
-- **Completed**: T1–T22 (commits a9752fc..61d5d02) + validation report
+- **Feature**: scoring-fix (core-v01.1) — complete (Verifier PASS, 10/10 ACs, 4/4 mutations killed)
+- **Phase / Task**: T1–T6 complete
+- **Completed**: T1–T6 (commits 3beee9b..92e5722) + validation report
 - **In-progress**: none
-- **Next step**: plan the next feature (M2 Tauri app shell, then M3 release)
+- **Next step**: plan M2 (Tauri app shell: tray, menu, notifications, settings) as the next feature
 - **Blockers**: none — local commits are ahead of origin; pushing needs an explicit go-ahead
 - **Uncommitted files**: none
 - **Branch**: main
