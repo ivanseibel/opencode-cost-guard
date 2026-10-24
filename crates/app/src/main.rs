@@ -32,6 +32,7 @@ fn main() {
             app.manage(Mutex::new(state));
             app.manage(sync_job::SyncGuard::default());
             app.manage(tray::LastPresentation::default());
+            app.manage(tray::LastTitle::default());
             tray::build(app.handle())?;
             timer::spawn(app.handle());
             // SYNCA-01: one unconditional sync on every launch, independent of

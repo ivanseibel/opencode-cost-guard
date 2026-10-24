@@ -2,8 +2,10 @@
 //!
 //! The tray is created once in `setup`; later refreshes compare the new
 //! [`Presentation`] with the last rendered one and skip every write when
-//! nothing changed (TRAY-03). If `set_title` fails, the tray falls back to a
-//! peak-colored icon plus tooltip and logs the fallback once (TRAY-04).
+//! nothing changed. Menu rebuilds follow the broader presentation delta, while
+//! `set_title` only runs when the title string itself changes (TRAY-03). If
+//! `set_title` fails, the tray falls back to a peak-colored icon plus tooltip
+//! and logs the fallback once (TRAY-04).
 
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -23,6 +25,18 @@ pub const TRAY_ID: &str = "main";
 /// Last rendered presentation; `None` until the tray is built.
 #[derive(Debug, Default)]
 pub struct LastPresentation(Mutex<Option<Presentation>>);
+
+/// Last title handed to the tray; `None` until the tray is built.
+#[derive(Debug, Default)]
+pub struct LastTitle(Mutex<Option<String>>);
+
+/// Whether `next` differs from the last rendered title (TRAY-03).
+///
+/// Presentation equality also covers `syncing`, `source`, `profile` and
+/// `error`; those may rebuild the menu but must not rewrite the title.
+pub fn title_changed(last: Option<&str>, next: &str) -> bool {
+    last != Some(next)
+}
 
 /// Set after the first `set_title` failure; later refreshes use the fallback.
 static TITLE_FALLBACK_ACTIVE: AtomicBool = AtomicBool::new(false);
@@ -79,6 +93,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<()> {
     }
     builder.build(app)?;
 
+    store_title(app, presentation.title.clone());
     store(app, presentation);
     Ok(())
 }
@@ -111,7 +126,10 @@ fn try_refresh(app: &AppHandle) -> tauri::Result<()> {
     };
     let menu = menu::build(app, &presentation)?;
     tray.set_menu(Some(menu))?;
-    apply_title(&tray, &presentation)?;
+    if title_changed(load_title(app).as_deref(), &presentation.title) {
+        apply_title(&tray, &presentation)?;
+        store_title(app, presentation.title.clone());
+    }
 
     store(app, presentation);
     Ok(())
@@ -151,6 +169,24 @@ fn load(app: &AppHandle) -> Option<Presentation> {
     guard.clone()
 }
 
+fn load_title(app: &AppHandle) -> Option<String> {
+    let state = app.state::<LastTitle>();
+    let guard = state
+        .0
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    guard.clone()
+}
+
+fn store_title(app: &AppHandle, title: String) {
+    let state = app.state::<LastTitle>();
+    let mut guard = state
+        .0
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    *guard = Some(title);
+}
+
 fn store(app: &AppHandle, presentation: Presentation) {
     let state = app.state::<LastPresentation>();
     let mut guard = state
@@ -177,5 +213,13 @@ mod tests {
             let decoded = Image::from_bytes(icon.bytes()).expect("fallback icon decodes");
             assert_eq!((decoded.width(), decoded.height()), (32, 32));
         }
+    }
+
+    #[test]
+    fn title_changes_only_when_the_string_differs() {
+        assert!(title_changed(None, "🟢 DS off"));
+        assert!(!title_changed(Some("🟢 DS off"), "🟢 DS off"));
+        assert!(title_changed(Some("🟢 DS off"), "🔴 DS 2×"));
+        assert!(!title_changed(Some("🟢 DS off ⚠"), "🟢 DS off ⚠"));
     }
 }
