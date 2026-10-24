@@ -132,11 +132,11 @@ T8 → T9 → T10 → T11 → T12 → T13
 
 **Done when**:
 
-- [ ] `tray_title` returns exactly `🟢 DS off` / `🔴 DS 2×` with ` ⚠` suffix when badge is set
-- [ ] Price lines use peak-aware effective prices (2× off-peak during DeepSeek peak)
-- [ ] Recommendation lines include pick + reasons; alternatives render up to 3; no-candidate shows failing filter
-- [ ] Unit tests assert exact strings for both windows, badge on/off, fallback source
-- [ ] Gate passes: quick gate command
+- [x] `tray_title` returns exactly `🟢 DS off` / `🔴 DS 2×` with ` ⚠` suffix when badge is set
+- [x] Price lines use peak-aware effective prices (2× off-peak during DeepSeek peak)
+- [x] Recommendation lines include pick + reasons; alternatives render up to 3; no-candidate shows failing filter
+- [x] Unit tests assert exact strings for both windows, badge on/off, fallback source
+- [x] Gate passes: quick gate command
 
 **Tests**: unit
 **Gate**: quick
