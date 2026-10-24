@@ -43,6 +43,7 @@ pub struct Presentation {
     pub title: String,
     pub state: String,
     pub transition: String,
+    pub peak: bool,
     pub prices: Vec<String>,
     pub profile: TaskProfile,
     pub recommendation: Vec<String>,
@@ -89,6 +90,7 @@ pub fn present(state: &AppState, syncing: bool, now: DateTime<Utc>) -> Presentat
         title: ui_model::tray_title(peak, state.badge),
         state: ui_model::tray_title(peak, false),
         transition: ui_model::next_transition_line(next, local),
+        peak,
         prices,
         profile: state.config.default_profile,
         recommendation: ui_model::recommendation_lines(&recommendation),
@@ -118,9 +120,10 @@ pub fn profile_label(profile: TaskProfile) -> &'static str {
 pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu<Wry>> {
     #[cfg(debug_assertions)]
     eprintln!(
-        "cost-guard: menu built state={} | transition={} | prices={:?} | profile={} | recommendation={:?} | alternatives={:?} | source={} | warnings={:?} | syncing={} | badge={}",
+        "cost-guard: menu built state={} | transition={} | peak={} | prices={:?} | profile={} | recommendation={:?} | alternatives={:?} | source={} | warnings={:?} | syncing={} | badge={}",
         presentation.state,
         presentation.transition,
+        presentation.peak,
         presentation.prices,
         presentation.profile,
         presentation.recommendation,
