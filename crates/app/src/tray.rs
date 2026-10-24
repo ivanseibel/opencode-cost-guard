@@ -8,10 +8,10 @@
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use chrono::Utc;
 use tauri::tray::{TrayIcon, TrayIconBuilder};
 use tauri::{AppHandle, Manager, Wry};
 
+use crate::clock;
 use crate::menu::{self, Presentation};
 use crate::runtime;
 use crate::sync_job::SyncGuard;
@@ -81,7 +81,7 @@ fn try_refresh(app: &AppHandle) -> tauri::Result<()> {
 
 fn current_presentation(app: &AppHandle) -> Presentation {
     let syncing = app.state::<SyncGuard>().is_running();
-    runtime::with_state(app, |state| menu::present(state, syncing, Utc::now()))
+    runtime::with_state(app, |state| menu::present(state, syncing, clock::now()))
 }
 
 fn apply_title(app: &AppHandle, tray: &TrayIcon<Wry>, title: &str) -> tauri::Result<()> {

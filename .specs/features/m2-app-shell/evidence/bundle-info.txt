@@ -1,0 +1,31 @@
+# Bundle
+path: target/release/bundle/macos/Cost Guard.app
+drwxr-xr-x@ 3 ivanseibel  staff  96 Oct 24 04:22 target/release/bundle/macos/Cost Guard.app
+
+# Info.plist
+  "CFBundleExecutable" => "cost-guard-app"
+  "CFBundleIdentifier" => "dev.ivanseibel.costguard"
+  "CFBundleName" => "Cost Guard"
+  "LSUIElement" => true
+
+# codesign
+Executable=/Users/ivanseibel/dev/personal/opencode-cost-guard/target/release/bundle/macos/Cost Guard.app/Contents/MacOS/cost-guard-app
+Identifier=cost_guard_app-2fa92c08e82d1632
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=121528 flags=0x20002(adhoc,linker-signed) hashes=3794+0 location=embedded
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+
+# lsappinfo
+80) "Cost Guard" ASN:0x0-0x1077076: 
+    bundleID="dev.ivanseibel.costguard"
+    bundle path="/Users/ivanseibel/dev/personal/opencode-cost-guard/target/release/bundle/macos/Cost Guard.app"
+    executable path="/Users/ivanseibel/dev/personal/opencode-cost-guard/target/release/bundle/macos/Cost Guard.app/Contents/MacOS/cost-guard-app"
+    pid = 74054 type="UIElement" flavor=3 Version="0.1.0" fileType="APPL" creator="????" Arch=ARM64 
+    coalition: 62729
+
+# lsappinfo info (final release build)
+CFBundleIdentifier="dev.ivanseibel.costguard"
+ApplicationType="UIElement"

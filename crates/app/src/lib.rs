@@ -5,6 +5,7 @@
 //! directly.
 
 pub mod app_state;
+pub mod clock;
 pub mod events;
 pub mod menu;
 pub mod runtime;

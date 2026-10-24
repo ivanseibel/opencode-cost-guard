@@ -112,6 +112,20 @@ pub fn profile_label(profile: TaskProfile) -> &'static str {
 
 /// Build the complete native menu for one presentation.
 pub fn build(app: &AppHandle, presentation: &Presentation) -> tauri::Result<Menu<Wry>> {
+    #[cfg(debug_assertions)]
+    eprintln!(
+        "cost-guard: menu built state={} | transition={} | prices={:?} | profile={} | recommendation={:?} | alternatives={:?} | source={} | syncing={} | badge={}",
+        presentation.state,
+        presentation.transition,
+        presentation.prices,
+        presentation.profile,
+        presentation.recommendation,
+        presentation.alternatives,
+        presentation.source,
+        presentation.syncing,
+        presentation.badge
+    );
+
     let state_item = label(app, "view:state", &presentation.state)?;
     let transition_item = label(app, "view:transition", &presentation.transition)?;
     let source_item = label(app, "view:source", &presentation.source)?;
@@ -267,7 +281,7 @@ fn switch_profile(app: &AppHandle, value: &str) {
     tray::refresh(app);
 }
 
-fn show_settings(app: &AppHandle) {
+pub fn show_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window(SETTINGS_LABEL) {
         if let Err(error) = window.show() {
             eprintln!("cost-guard: failed to show settings: {error}");

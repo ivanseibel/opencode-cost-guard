@@ -1,0 +1,2 @@
+id=5015 alpha=1.0 bounds=["X": 759, "Y": 0, "Height": 33, "Width": 101]
+captured: .specs/features/m2-app-shell/evidence/tray-title.png

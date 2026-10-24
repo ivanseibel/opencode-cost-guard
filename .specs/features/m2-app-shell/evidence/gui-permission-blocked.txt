@@ -1,0 +1,58 @@
+# GUI interaction blocked
+
+## Orca computer-use
+{
+  "id": "51422073-2723-4733-962f-5b6619542758",
+  "ok": false,
+  "error": {
+    "code": "app_not_found",
+    "message": "app 'pid:1' not found",
+    "data": {
+      "nextSteps": [
+        "Run `orca computer list-apps --json` and retry with the exact app name or bundle ID.",
+        "If the target is a website or web app such as Gmail, choose the desktop browser app/window that contains it; `orca computer` app selectors refer to desktop apps, not website names.",
+        "Do not retry the same `orca computer ... --app <web app>` command unchanged.",
+        "If the desired browser is not listed, open or focus that browser first, then retry `orca computer list-apps --json` and `orca computer list-windows --app <browser> --json`."
+      ]
+    }
+  },
+  "_meta": {
+    "runtimeId": "59330719-deee-40fc-8155-bcf86ee99ac4"
+  }
+}
+
+## TCC probes
+AX:false
+SC:true
+
+## Synthesized click test
+CGEvent left click at (20,16); pointer location before/after:
+(1200.0, 3.0)
+(1200.0, 3.0)
+(pointer does not move; no menu opens)
+
+## Full-display vs per-window capture
+screencapture -x -D 1 -> wallpaper only (screen-display1.png);
+screencapture -x -o -l <window-id> -> captures window content (tray-title.png, settings-window.png).
+
+## osascript System Events
+Earlier 'tell application "System Events" ...' hung until timeout (no Accessibility grant).
+
+## Orca computer-use against live Cost Guard pid:76243
+{
+  "id": "0b8ad0da-0d44-4348-aa2e-194e9948cc1c",
+  "ok": false,
+  "error": {
+    "code": "permission_denied",
+    "message": "Accessibility permission is required for Orca Computer Use. Run `orca computer permissions` or open Settings > Computer Use, grant Accessibility to Orca Computer Use, then retry.",
+    "data": {
+      "nextSteps": [
+        "Run `orca computer permissions --json`, or `orca computer permissions --id accessibility --json` / `--id screenshots --json` when the message names one missing permission.",
+        "For remote or SSH targets, verify the command is running inside an active graphical desktop session."
+      ]
+    }
+  },
+  "_meta": {
+    "runtimeId": "59330719-deee-40fc-8155-bcf86ee99ac4"
+  }
+}

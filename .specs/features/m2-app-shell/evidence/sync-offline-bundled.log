@@ -1,0 +1,2 @@
+cost-guard: sync started
+cost-guard: sync fell back to Bundled: fetch failed: request failed: io: failed to lookup address information: nodename nor servname provided, or not known

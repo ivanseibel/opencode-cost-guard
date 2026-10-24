@@ -107,7 +107,15 @@ pub fn save_settings(
 /// Read the current settings for the webview.
 #[tauri::command]
 pub fn settings_get(app: AppHandle) -> SettingsDto {
-    runtime::with_state(&app, |state| SettingsDto::from(&state.config))
+    let settings = runtime::with_state(&app, |state| SettingsDto::from(&state.config));
+    eprintln!(
+        "cost-guard: settings_get served profile={} intervalHours={} autostart={} ignoredModels={}",
+        settings.default_profile,
+        settings.sync_interval_hours,
+        settings.autostart,
+        settings.ignored_models.len()
+    );
+    settings
 }
 
 /// Validate, persist and apply settings, returning a field error on failure.

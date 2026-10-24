@@ -404,11 +404,11 @@ T12 → T13
 
 **Done when**:
 
-- [ ] `smoke.md` lists each check with pass/fail, command, and screenshot/probe evidence path
-- [ ] Bundle launches from `target/release/bundle/macos/Cost Guard.app`; tray visible; activation policy accessory
-- [ ] Peak state can be exercised with a debug fixture (fake clock) and produces exactly one notification
-- [ ] Settings persist across restart; LaunchAgent created/removed when autostart toggled (outside dev)
-- [ ] Gate passes: build gate command + bundle command
+- [x] `smoke.md` lists each check with pass/fail, command, and screenshot/probe evidence path
+- [x] Bundle launches from `target/release/bundle/macos/Cost Guard.app`; tray visible; activation policy accessory
+- [x] Peak state can be exercised with a debug fixture (fake clock) and produces exactly one notification
+- [x] Settings persist across restart; LaunchAgent created/removed when autostart toggled (outside dev)
+- [x] Gate passes: build gate command + bundle command
 
 **Tests**: none (manual smoke with evidence)
 **Gate**: build

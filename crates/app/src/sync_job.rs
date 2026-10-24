@@ -41,6 +41,7 @@ pub fn spawn(app: &AppHandle) {
     if !app.state::<SyncGuard>().try_start() {
         return;
     }
+    eprintln!("cost-guard: sync started");
     // Disable the manual item while the worker runs.
     tray::request_refresh(app);
 
@@ -76,11 +77,15 @@ fn run_sync(app: &AppHandle) -> SyncOutcome {
 
 /// Log sync failures without a modal dialog (SYNCA-04).
 fn log_outcome(outcome: &SyncOutcome) {
+    match &outcome.status {
+        SyncStatus::Updated { source } => eprintln!("cost-guard: sync updated ({source:?})"),
+        SyncStatus::NotModified => eprintln!("cost-guard: sync not modified"),
+        SyncStatus::Fallback { source, reason } => {
+            eprintln!("cost-guard: sync fell back to {source:?}: {reason}");
+        }
+    }
     for warning in &outcome.warnings {
         eprintln!("cost-guard: sync warning: {warning}");
-    }
-    if let SyncStatus::Fallback { source, reason } = &outcome.status {
-        eprintln!("cost-guard: sync fell back to {source:?}: {reason}");
     }
 }
 

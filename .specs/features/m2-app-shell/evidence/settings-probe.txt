@@ -1,0 +1,8 @@
+# settings window probe
+command: COST_GUARD_OPEN_SETTINGS=1 target/debug/bundle/macos/Cost Guard.app/Contents/MacOS/cost-guard-app
+id=5024 pid=75229 layer=0 owner=Cost Guard name= bounds=["Width": 500, "Y": 482, "Height": 500, "X": 0]
+id=5021 pid=75229 layer=0 owner=Cost Guard name=Cost Guard Settings bounds=["Width": 520, "Y": 166, "Height": 420, "X": 496]
+
+# settings_get log
+cost-guard: menu built state=🟢 DS off | transition=Next transition: Mon 01:00 local (Mon 01:00 UTC) | prices=["DeepSeek V4.1 Flash — off-peak", "Input: $0.15/M", "Output: $0.60/M", "Cache read: $0.003/M"] | profile=visual-ui | recommendation=["Pick: Muse Spark 1.3 Contributor", "Reason: off-peak pricing is active", "Reason: among the cheapest effective token prices", "Reason: cheap cache reads keep multi-turn loops economical", "Reason: large monthly allowance headroom", "Reason: context window meets the 200K target", "Reason: image input is required for this profile", "Reason: prompts may be used to train the provider's models"] | alternatives=["Alternative: MiMo V2.5", "Alternative: MiMo-V2.6-Flash", "Alternative: DeepSeek V4.1 Flash"] | source=Source: remote snapshot · last sync 2026-10-24 03:34 UTC | syncing=false | badge=false
+cost-guard: settings_get served profile=visual-ui intervalHours=1 autostart=false ignoredModels=1

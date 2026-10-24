@@ -35,6 +35,13 @@ fn main() {
             tray::build(app.handle())?;
             timer::spawn(app.handle());
 
+            // Debug-only smoke fixture: open Settings without driving the tray,
+            // which requires Accessibility permission the host may not grant.
+            #[cfg(debug_assertions)]
+            if std::env::var_os("COST_GUARD_OPEN_SETTINGS").is_some() {
+                menu::show_settings(app.handle());
+            }
+
             Ok(())
         })
         .build(tauri::generate_context!())

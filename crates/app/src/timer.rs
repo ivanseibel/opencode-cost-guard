@@ -20,7 +20,7 @@ use crate::app_state::AppState;
 use crate::events::{Transition, TransitionTracker};
 use crate::menu::{DEEPSEEK_VENDOR, profile_label};
 use crate::runtime;
-use crate::{sync_job, tray};
+use crate::{clock, sync_job, tray};
 
 /// State tick cadence.
 pub const TICK: Duration = Duration::from_secs(30);
@@ -47,7 +47,7 @@ pub fn spawn(app: &AppHandle) {
 
         loop {
             interval.tick().await;
-            tick(&handle, Utc::now(), &mut tracker);
+            tick(&handle, clock::now(), &mut tracker);
         }
     });
 }
@@ -66,6 +66,7 @@ fn tick(app: &AppHandle, now: DateTime<Utc>, tracker: &mut TransitionTracker) {
     });
 
     if let Some(transition) = tracker.observe(tick.peak, &tick.notifications) {
+        eprintln!("cost-guard: peak transition detected: {transition:?}");
         send_notification(app, transition, &tick.body);
     }
     if tick.sync_due {
@@ -102,8 +103,9 @@ fn send_notification(app: &AppHandle, transition: Transition, body: &str) {
         Transition::EnteredPeak => "DeepSeek peak started",
         Transition::ExitedPeak => "DeepSeek peak ended",
     };
-    if let Err(error) = app.notification().builder().title(title).body(body).show() {
-        eprintln!("cost-guard: failed to send peak notification: {error}");
+    match app.notification().builder().title(title).body(body).show() {
+        Ok(()) => eprintln!("cost-guard: peak notification sent: {title} | {body}"),
+        Err(error) => eprintln!("cost-guard: failed to send peak notification: {error}"),
     }
 }
 
