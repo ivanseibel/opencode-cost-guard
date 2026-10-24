@@ -77,5 +77,4 @@
 
 - Optional (from validation.md): wire the startup-sync test to the real call site; reload settings on re-show.
 - Review `data/capabilities.toml` seeds (peak recommendation behavior).
-- COST-01 wording at `c_max` (epsilon floor).
 - GUI-only smoke legs (native menu clicks, painted settings screenshot) remain observation-only; re-run on an unlocked session with Accessibility if desired.

@@ -60,7 +60,7 @@ The verified core-v01 implementation applies DeepSeek's peak multiplier to **eve
 **Acceptance Criteria**:
 
 1. COST-01 WHEN candidates are scored THEN `cost_score` SHALL be `1 - (ln(1+c) - ln(1+c_min)) / (ln(1+c_max) - ln(1+c_min))` over eligible candidates, where `c` is the effective cost index.
-2. COST-02 IF a zero-cost candidate is eligible THEN it SHALL score exactly 1.0 and paid candidates SHALL keep differentiated scores strictly between 0.0 and 1.0.
+2. COST-02 IF a zero-cost candidate is eligible THEN it SHALL score exactly 1.0 and paid candidates SHALL keep differentiated scores in `[0.0, 1.0]`, with the highest effective cost landing at exactly 0.0.
 3. COST-03 IF all eligible candidates share the same cost index THEN every `cost_score` SHALL be 1.0.
 
 **Independent Test**: Unit test with costs 0.0, 3.0, 3.5: scores are 1.0, then two distinct values in (0,1).

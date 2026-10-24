@@ -16,10 +16,9 @@
 //!
 //! - Equal cost indices, one eligible candidate, or a degenerate log range all
 //!   score `cost_score = 1.0` instead of dividing by zero.
-//! - A zero-cost candidate scores exactly `1.0`. Paid candidates stay strictly
-//!   inside `(0, 1)` and differentiated; COST-01's formula floors at exactly
-//!   0.0 for the range maximum, so positive scores are clamped at one
-//!   `f64::EPSILON` (numerically indistinguishable, ranking unchanged).
+//! - A zero-cost candidate scores exactly `1.0`. Paid candidates are
+//!   differentiated in `[0.0, 1.0]`: the highest effective cost lands at
+//!   exactly `0.0` (COST-02, loosened).
 //! - An unlisted monthly allowance scores the neutral `0.5`.
 //!
 //! Ordering is deterministic: score descending, then lower effective
@@ -168,15 +167,7 @@ pub fn score_candidates(
             let cost_score = if log_range <= f64::EPSILON {
                 1.0
             } else {
-                let normalized = 1.0 - (log_cost_index(candidate) - min_log_cost) / log_range;
-                // COST-01 lands the range maximum at exactly 0.0. COST-02 keeps
-                // paid candidates strictly inside (0, 1), so floor the result
-                // at one epsilon: numerically indistinguishable, order intact.
-                if index > 0.0 {
-                    normalized.max(f64::EPSILON)
-                } else {
-                    normalized
-                }
+                1.0 - (log_cost_index(candidate) - min_log_cost) / log_range
             };
             let allowance_score = match candidate.monthly_limit {
                 Some(limit) if max_allowance > 0.0 => limit / max_allowance,
@@ -477,7 +468,7 @@ mod tests {
         let expected_b = 1.0 - (3.0_f64.ln() - 2.0_f64.ln()) / (5.0_f64.ln() - 2.0_f64.ln());
         assert!((b.cost_score - expected_b).abs() < 1e-12, "{b:?}");
         assert!(b.cost_score > 0.0 && b.cost_score < 1.0);
-        assert_eq!(c.cost_score, f64::EPSILON);
+        assert_eq!(c.cost_score, 0.0);
     }
 
     #[test]
@@ -540,10 +531,9 @@ mod tests {
         let expected_mid = 1.0 - 4.0_f64.ln() / 4.5_f64.ln();
         assert!((mid.cost_score - expected_mid).abs() < 1e-12, "{mid:?}");
         assert!(mid.cost_score > 0.0 && mid.cost_score < 1.0);
-        // COST-01 lands the range maximum at 0.0; COST-02 keeps every paid
-        // candidate strictly above 0.0, so the boundary is floored at epsilon.
-        assert_eq!(pricey.cost_score, f64::EPSILON);
-        assert!(pricey.cost_score > 0.0 && pricey.cost_score < 1.0);
+        // COST-02 (loosened) keeps paid candidates in [0, 1]; the priciest
+        // candidate lands exactly at 0.0.
+        assert_eq!(pricey.cost_score, 0.0);
         assert_ne!(mid.cost_score, pricey.cost_score);
     }
 
@@ -645,9 +635,7 @@ mod tests {
         let b = scored.iter().find(|c| c.model_id == "b").expect("b");
 
         assert!((a.score - (0.55 * 0.8 + 0.30 * 1.0 + 0.10 * 1.0 + 0.05 * 1.0)).abs() < 1e-12);
-        assert!(
-            (b.score - (0.55 * 0.8 + 0.30 * f64::EPSILON + 0.10 * 0.5 + 0.05 * 0.5)).abs() < 1e-12
-        );
+        assert!((b.score - (0.55 * 0.8 + 0.30 * 0.0 + 0.10 * 0.5 + 0.05 * 0.5)).abs() < 1e-12);
     }
 
     #[test]

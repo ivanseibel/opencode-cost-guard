@@ -199,3 +199,9 @@ Gate command from `tasks.md` (Build): `cargo fmt --check && cargo clippy --works
 **Next steps**: mark the 10 requirements Verified in `spec.md`; optionally tighten the COST-01 boundary wording; proceed to the next feature.
 
 **Lesson candidate** (not recorded - Verifier was scoped to this report only): when two ACs collide at a boundary (exact-value formula vs strict inequality), the spec must name the tie-break; implementation-side epsilon floors are acceptable only when documented and assertion-pinned.
+
+---
+
+## Post-validation amendment (2026-10-24)
+
+The user chose to loosen COST-02 instead of documenting the epsilon floor. Paid candidates now score in `[0.0, 1.0]`, with the highest effective cost landing at exactly `0.0`; the `f64::EPSILON` floor was removed from `crates/core/src/recommend/score.rs`, and the spec wording plus boundary tests were updated. Full gate re-run green. The historical verdict above remains as recorded.
