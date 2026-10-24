@@ -14,6 +14,31 @@ Thanks for helping improve OpenCode Cost Guard. This project is a small, persona
 
 3. The pinned toolchain in `rust-toolchain.toml` installs automatically on the first Cargo command.
 
+## App shell setup (macOS)
+
+The Tauri shell in `crates/app` needs [tauri-cli](https://tauri.app) 2.12.4. Install the official prebuilt binary on Apple silicon:
+
+```sh
+curl --fail --location --silent --show-error \
+  --output "$TMPDIR/cargo-tauri.zip" \
+  "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.12.4/cargo-tauri-aarch64-apple-darwin.zip"
+unzip -o "$TMPDIR/cargo-tauri.zip" -d "$HOME/.cargo/bin"
+chmod +x "$HOME/.cargo/bin/cargo-tauri"
+cargo tauri --version
+```
+
+Run the app with the Tauri dev loop:
+
+```sh
+cd crates/app && cargo tauri dev
+```
+
+Or run the crate directly from the repository root. The static `ui/` assets are embedded, so no Node toolchain is required:
+
+```sh
+cargo run -p cost-guard-app
+```
+
 ## Before opening a pull request
 
 Run the same checks as CI from the repository root:
@@ -22,7 +47,22 @@ Run the same checks as CI from the repository root:
 cargo fmt --all
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
+cargo check -p cost-guard-app
 bash scripts/check-core-purity.sh
+```
+
+On Ubuntu CI only `cargo fmt --check`, `cargo clippy -p cost-guard-core --all-targets -- -D warnings`, `cargo test -p cost-guard-core`, and the purity script run; the workspace checks and the app check are macOS-only.
+
+Build and smoke-test the macOS bundle before changing app wiring or packaging:
+
+```sh
+cd crates/app && cargo tauri build --bundles app
+```
+
+The bundle lands at `target/release/bundle/macos/Cost Guard.app`. It is unsigned locally; CI ad-hoc signs release artifacts. To bypass Gatekeeper for an unsigned build you trust:
+
+```sh
+xattr -dr com.apple.quarantine "target/release/bundle/macos/Cost Guard.app"
 ```
 
 Requirements:

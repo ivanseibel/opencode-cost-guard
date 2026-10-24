@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,11 +29,63 @@ jobs:
       - name: Format
         run: cargo fmt --check
 
-      - name: Clippy
+      - name: Clippy (core)
+        if: runner.os == 'Linux'
+        run: cargo clippy -p cost-guard-core --all-targets -- -D warnings
+
+      - name: Test (core)
+        if: runner.os == 'Linux'
+        run: cargo test -p cost-guard-core
+
+      - name: Clippy (workspace)
+        if: runner.os == 'macOS'
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: Test
+      - name: Test (workspace)
+        if: runner.os == 'macOS'
         run: cargo test --workspace
+
+      - name: Check app shell
+        if: runner.os == 'macOS'
+        run: cargo check -p cost-guard-app
 
       - name: Core dependency purity
         run: bash scripts/check-core-purity.sh
+
+  package:
+    name: Package macOS app
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install pinned toolchain
+        run: rustup show
+
+      - name: Install tauri-cli 2.12.4
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/cargo-tauri.zip" \
+            "https://github.com/tauri-apps/tauri/releases/download/tauri-cli-v2.12.4/cargo-tauri-aarch64-apple-darwin.zip"
+          unzip -o "$RUNNER_TEMP/cargo-tauri.zip" -d "$HOME/.cargo/bin"
+          chmod +x "$HOME/.cargo/bin/cargo-tauri"
+          cargo tauri --version
+
+      - name: Build app bundle
+        run: cd crates/app && cargo tauri build --bundles app
+
+      - name: Ad-hoc sign the bundle
+        run: |
+          codesign --force --deep -s - "target/release/bundle/macos/Cost Guard.app"
+          codesign --verify --verbose=2 "target/release/bundle/macos/Cost Guard.app"
+
+      - name: Zip the bundle
+        run: ditto -c -k --keepParent "target/release/bundle/macos/Cost Guard.app" "Cost-Guard-${{ github.ref_name }}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cost-Guard-${{ github.ref_name }}
+          path: Cost-Guard-${{ github.ref_name }}.zip
+          if-no-files-found: error

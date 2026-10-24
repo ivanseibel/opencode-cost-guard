@@ -378,10 +378,10 @@ T12 → T13
 
 **Done when**:
 
-- [ ] Ubuntu job runs core tests only; macOS job runs workspace tests + `cargo check -p cost-guard-app`
-- [ ] Release-style job (workflow_dispatch or tag) installs tauri-cli, runs `cargo tauri build --bundles app`, ad-hoc signs, uploads zip
-- [ ] README/CONTRIBUTING document `cargo tauri dev`, `cargo run -p cost-guard-app`, CLI install and bundling
-- [ ] Gate passes: build gate command + `cd crates/app && cargo tauri build --bundles app`
+- [x] Ubuntu job runs core tests only; macOS job runs workspace tests + `cargo check -p cost-guard-app`
+- [x] Release-style job (workflow_dispatch or tag) installs tauri-cli, runs `cargo tauri build --bundles app`, ad-hoc signs, uploads zip
+- [x] README/CONTRIBUTING document `cargo tauri dev`, `cargo run -p cost-guard-app`, CLI install and bundling
+- [x] Gate passes: build gate command + `cd crates/app && cargo tauri build --bundles app`
 
 **Tests**: none (CI/docs, build gate)
 **Gate**: build
