@@ -3,8 +3,9 @@
 //! Every tick re-reads the Pricing Window state, feeds the transition tracker
 //! and asks for a tray refresh; the tray itself skips unchanged presentations
 //! (TRAY-03). Notifications fire at most once per transition (NOTIF-01..03).
-//! Catalog sync is due when a sync has never completed or the configured
-//! interval elapsed (SYNCA-01).
+//! Catalog sync is due on the periodic path when a sync has never completed or
+//! the configured interval elapsed (SYNCA-01); `setup` additionally spawns one
+//! unconditional sync on every launch.
 
 use std::time::Duration;
 
@@ -25,6 +26,15 @@ use crate::{clock, sync_job, tray};
 /// State tick cadence.
 pub const TICK: Duration = Duration::from_secs(30);
 
+/// Reason a Catalog Sync is being considered (SYNCA-01).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SyncTrigger {
+    /// Unconditional sync requested from `setup` on every launch.
+    Startup,
+    /// Periodic path driven by [`should_sync`].
+    Interval,
+}
+
 /// Whether a sync is due at `now`, given the last successful fetch.
 pub fn should_sync(
     now: DateTime<Utc>,
@@ -34,6 +44,22 @@ pub fn should_sync(
     match last_sync {
         None => true,
         Some(last) => now.signed_duration_since(last) >= interval,
+    }
+}
+
+/// Whether `trigger` requests a sync.
+///
+/// Startup ignores the stored snapshot age: a launch always refreshes the
+/// catalog once. The periodic path keeps the interval gate.
+pub fn sync_requested(
+    trigger: SyncTrigger,
+    now: DateTime<Utc>,
+    last_sync: Option<DateTime<Utc>>,
+    interval: ChronoDuration,
+) -> bool {
+    match trigger {
+        SyncTrigger::Startup => true,
+        SyncTrigger::Interval => should_sync(now, last_sync, interval),
     }
 }
 
@@ -57,7 +83,8 @@ fn tick(app: &AppHandle, now: DateTime<Utc>, tracker: &mut TransitionTracker) {
     let tick = runtime::with_state(app, |state| Tick {
         peak: state_for(DEEPSEEK_VENDOR, now, &state.overlays).is_some_and(|window| window.peak),
         notifications: state.config.notifications,
-        sync_due: should_sync(
+        sync_due: sync_requested(
+            SyncTrigger::Interval,
             now,
             state.last_sync_at,
             ChronoDuration::hours(i64::from(state.config.sync_interval_hours)),
@@ -153,5 +180,26 @@ mod tests {
             interval
         ));
         assert!(should_sync(instant(1), Some(instant(0)), interval));
+    }
+
+    #[test]
+    fn startup_syncs_even_with_a_fresh_snapshot() {
+        let now = instant(12);
+        let fresh = Some(now - ChronoDuration::minutes(1));
+
+        assert!(
+            !should_sync(now, fresh, six_hours()),
+            "a one-minute-old snapshot is not due on the periodic path"
+        );
+        assert!(
+            sync_requested(SyncTrigger::Startup, now, fresh, six_hours()),
+            "startup must request one sync regardless of snapshot age"
+        );
+        assert!(!sync_requested(
+            SyncTrigger::Interval,
+            now,
+            fresh,
+            six_hours()
+        ));
     }
 }

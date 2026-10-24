@@ -34,6 +34,9 @@ fn main() {
             app.manage(tray::LastPresentation::default());
             tray::build(app.handle())?;
             timer::spawn(app.handle());
+            // SYNCA-01: one unconditional sync on every launch, independent of
+            // the stored snapshot age used by the periodic path.
+            sync_job::spawn(app.handle());
 
             // Debug-only smoke fixture: open Settings without driving the tray,
             // which requires Accessibility permission the host may not grant.
